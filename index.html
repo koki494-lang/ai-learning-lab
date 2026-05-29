@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI学習ラボ - 大学生のためのAI活用ガイド</title>
+<style>
+/* ===== リセット・ベース ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  background: #F5F3FF;
+  color: #1a1a2e;
+  line-height: 1.7;
+  padding-bottom: 80px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== カラー変数 ===== */
+:root {
+  --primary: #7F77DD;
+  --primary-light: #A49BE8;
+  --primary-dark: #5A50C7;
+  --primary-bg: #F5F3FF;
+  --primary-surface: #EDE9FE;
+  --accent-green: #34D399;
+  --accent-orange: #FBBF24;
+  --accent-pink: #F472B6;
+  --accent-blue: #60A5FA;
+  --accent-red: #F87171;
+  --accent-teal: #2DD4BF;
+  --text-primary: #1a1a2e;
+  --text-secondary: #6B7280;
+  --text-light: #9CA3AF;
+  --white: #FFFFFF;
+  --shadow-sm: 0 1px 3px rgba(127,119,221,0.1);
+  --shadow-md: 0 4px 12px rgba(127,119,221,0.15);
+  --shadow-lg: 0 8px 24px rgba(127,119,221,0.2);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+a { color: var(--primary); text-decoration: none; }
+
+/* ===== ヘッダー ===== */
+.app-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.app-header h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-header .subtitle {
+  font-size: 0.75rem;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+.header-actions {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 8px;
+}
+.header-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.header-btn:hover { background: rgba(255,255,255,0.3); }
+
+/* ===== ボトムナビゲーション（4タブ） ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+  z-index: 100;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  color: var(--text-light);
+  font-size: 0.6rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 0;
+  flex: 1;
+}
+.nav-item .nav-icon { font-size: 1.3rem; transition: transform 0.2s; }
+.nav-item.active { color: var(--primary); font-weight: 700; }
+.nav-item.active .nav-icon { transform: scale(1.15); }
+
+/* ===== 画面コンテナ ===== */
+.screen { display: none; padding: 20px; max-width: 600px; margin: 0 auto; }
+.screen.active { display: block; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== ホーム画面 ===== */
+.welcome-card {
+  background: linear-gradient(135deg, var(--primary) 0%, #9B8FE8 50%, var(--accent-pink) 100%);
+  color: white;
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.welcome-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 140px; height: 140px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+}
+.welcome-card::after {
+  content: '';
+  position: absolute;
+  bottom: -20px; left: -20px;
+  width: 80px; height: 80px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+}
+.welcome-card h2 { font-size: 1.3rem; margin-bottom: 4px; position: relative; }
+.welcome-card p { font-size: 0.85rem; opacity: 0.9; position: relative; }
+.welcome-card .welcome-emoji { font-size: 2rem; margin-bottom: 8px; }
+
+.progress-overview {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.progress-overview h3 {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.progress-bar-container {
+  background: var(--primary-surface);
+  border-radius: 10px;
+  height: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--primary), var(--accent-green));
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.progress-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recommend-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--accent-orange);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.recommend-card:active { transform: scale(0.98); }
+.recommend-label {
+  font-size: 0.7rem;
+  color: var(--accent-orange);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.recommend-title { font-size: 1rem; font-weight: 700; }
+.recommend-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+
+/* ===== チャプターカード ===== */
+.chapter-list { display: flex; flex-direction: column; gap: 12px; }
+.chapter-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.chapter-card:active { transform: scale(0.98); box-shadow: var(--shadow-md); }
+.chapter-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+.chapter-icon.purple { background: #EDE9FE; }
+.chapter-icon.blue { background: #DBEAFE; }
+.chapter-icon.pink { background: #FCE7F3; }
+.chapter-icon.green { background: #D1FAE5; }
+.chapter-icon.orange { background: #FEF3C7; }
+.chapter-icon.teal { background: #CCFBF1; }
+.chapter-info { flex: 1; min-width: 0; }
+.chapter-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chapter-meta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.status-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.status-badge.not_started { background: #F3F4F6; color: var(--text-secondary); }
+.status-badge.in_progress { background: #FEF3C7; color: #D97706; }
+.status-badge.completed { background: #D1FAE5; color: #059669; }
+.chapter-arrow {
+  color: var(--text-light);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* ===== 学習画面 ===== */
+.learning-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.learning-tabs::-webkit-scrollbar { display: none; }
+.learning-tab {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 2px solid var(--primary-surface);
+  background: var(--white);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.learning-tab.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+.learning-stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.learning-stat-item {
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 14px 8px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.learning-stat-item .ls-num {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+.learning-stat-item .ls-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text-secondary);
+}
+.empty-state .empty-icon { font-size: 3.5rem; margin-bottom: 12px; }
+.empty-state .empty-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+.empty-state .empty-desc { font-size: 0.8rem; line-height: 1.6; }
+
+/* ===== チャプター詳細画面 ===== */
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.back-btn {
+  background: var(--white);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.back-btn:active { background: var(--primary-surface); }
+.detail-title-area { flex: 1; }
+.detail-title { font-size: 1.15rem; font-weight: 700; line-height: 1.4; }
+.detail-meta { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+
+.detail-hero {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.detail-hero::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 100px; height: 100px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+}
+.detail-hero .hero-icon { font-size: 3rem; margin-bottom: 8px; position: relative; }
+.detail-hero .hero-desc { font-size: 0.9rem; opacity: 0.95; line-height: 1.7; position: relative; }
+
+.content-section {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.content-section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+}
+.goals-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.goals-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.goals-list .goal-check {
+  color: var(--accent-green);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.body-content {
+  font-size: 0.9rem;
+  line-height: 1.85;
+}
+.body-content h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 24px 0 10px;
+  color: var(--primary-dark);
+  padding-left: 12px;
+  border-left: 3px solid var(--primary);
+}
+.body-content h4:first-child { margin-top: 0; }
+.body-content p { margin-bottom: 14px; }
+.body-content ul, .body-content ol { margin: 10px 0 14px 20px; }
+.body-content li { margin-bottom: 6px; }
+.body-content strong { color: var(--primary-dark); }
+.body-content code {
+  background: var(--primary-surface);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-family: 'SF Mono', 'Menlo', monospace;
+}
+.body-content blockquote {
+  border-left: 3px solid var(--primary-light);
+  padding: 12px 16px;
+  margin: 14px 0;
+  background: var(--primary-bg);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.points-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.point-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: var(--primary-surface);
+  border-radius: var(--radius-sm);
+}
+.point-num {
+  width: 28px;
+  height: 28px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.point-text { font-size: 0.88rem; flex: 1; line-height: 1.6; }
+
+.practice-box {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+}
+.practice-box .practice-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #D97706;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.practice-box .practice-text {
+  font-size: 0.9rem;
+  color: #92400E;
+  line-height: 1.7;
+}
+
+.complete-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-md);
+}
+.complete-btn:active { transform: scale(0.98); }
+.complete-btn.completed {
+  background: linear-gradient(135deg, var(--accent-green) 0%, #10B981 100%);
+}
+
+/* ===== 探す画面（コンテンツ生成） ===== */
+.generate-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+.generate-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.generate-card > p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+.input-group { margin-bottom: 16px; }
+.input-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.input-group input, .input-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--primary-surface);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  background: var(--white);
+  color: var(--text-primary);
+}
+.input-group input:focus, .input-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+.input-group textarea { resize: vertical; min-height: 80px; }
+.generate-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-shadow: var(--shadow-md);
+}
+.generate-btn:active { transform: scale(0.98); }
+.generate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===== マイページ ===== */
+.profile-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent-pink) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin: 0 auto 12px;
+}
+.profile-card h3 { font-size: 1.1rem; }
+.profile-card p { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 16px 8px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.stat-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* ===== APIキー入力エリア ===== */
+.api-key-section {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+.api-key-section h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.api-key-section > p {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.api-key-input-wrap {
+  display: flex;
+  gap: 8px;
+}
+.api-key-input-wrap input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 2px solid var(--primary-surface);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  color: var(--text-primary);
+}
+.api-key-input-wrap input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+.api-key-save-btn {
+  padding: 10px 18px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.api-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 0.75rem;
+}
+.api-status.connected { color: var(--accent-green); }
+.api-status.disconnected { color: var(--accent-red); }
+
+.settings-section {
+  background: var(--white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+.settings-section h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 16px 20px 8px;
+  color: var(--text-secondary);
+}
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid #F3F4F6;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.settings-item:active { background: #F9FAFB; }
+.settings-item .si-icon { font-size: 1.2rem; }
+.settings-item .si-label { flex: 1; font-size: 0.9rem; }
+.settings-item .si-arrow { color: var(--text-light); }
+.danger-btn {
+  width: calc(100% - 40px);
+  margin: 0 20px 20px;
+  padding: 12px;
+  background: #FEE2E2;
+  color: var(--accent-red);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.danger-btn:active { background: #FECACA; }
+
+/* ===== ローディング ===== */
+.loading-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  justify-content: center;
+  align-items: center;
+}
+.loading-overlay.active { display: flex; }
+.loading-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 40px 32px;
+  text-align: center;
+  max-width: 300px;
+  width: 90%;
+  box-shadow: var(--shadow-lg);
+}
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--primary-surface);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.loading-sub {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* ===== モーダル ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  justify-content: center;
+  align-items: flex-end;
+}
+.modal-overlay.active { display: flex; }
+.modal-content {
+  background: var(--white);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 24px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 60vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-content h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.modal-close {
+  background: var(--primary-surface);
+  border: none;
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+/* ===== トースト ===== */
+.toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--text-primary);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 300;
+  opacity: 0;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ===== レスポンシブ ===== */
+@media (min-width: 480px) {
+  .chapter-card { padding: 20px; }
+  .chapter-icon { width: 56px; height: 56px; }
+  .chapter-title { font-size: 1rem; }
+  .nav-item { font-size: 0.65rem; }
+}
+@media (min-width: 600px) {
+  body { padding-bottom: 90px; }
+  .bottom-nav { padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); }
+}
+
+/* ===== スクロールバー ===== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- ===== ヘッダー ===== -->
+<header class="app-header">
+  <h1>✨ AI学習ラボ</h1>
+  <div class="subtitle">大学生のためのAI活用ガイド</div>
+  <div class="header-actions">
+    <button class="header-btn" onclick="showApiKeyModal()" title="API設定">⚙️</button>
+  </div>
+</header>
+
+<!-- ===== ホーム画面 ===== -->
+<div id="screen-home" class="screen active">
+  <div class="welcome-card">
+    <div class="welcome-emoji">🚀</div>
+    <h2 id="welcome-greeting">今日もAIを学ぼう！</h2>
+    <p>最新のAI活用スキルを身につけて、周りと差をつけよう</p>
+  </div>
+
+  <div class="progress-overview">
+    <h3>📊 学習の進捗</h3>
+    <div class="progress-bar-container">
+      <div id="progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+    </div>
+    <div id="progress-text" class="progress-text">0 / 0 チャプター完了</div>
+  </div>
+
+  <div id="recommend-area"></div>
+
+  <h2 class="section-title">📚 チャプター一覧</h2>
+  <div id="chapter-list" class="chapter-list"></div>
+</div>
+
+<!-- ===== 学習画面 ===== -->
+<div id="screen-learn" class="screen">
+  <h2 class="section-title">📖 学習の記録</h2>
+  <div class="learning-stat-row">
+    <div class="learning-stat-item">
+      <div id="learn-stat-progress" class="ls-num">0%</div>
+      <div class="ls-label">達成率</div>
+    </div>
+    <div class="learning-stat-item">
+      <div id="learn-stat-done" class="ls-num">0</div>
+      <div class="ls-label">完了</div>
+    </div>
+    <div class="learning-stat-item">
+      <div id="learn-stat-remaining" class="ls-num">0</div>
+      <div class="ls-label">残り</div>
+    </div>
+  </div>
+  <div class="learning-tabs" id="learning-tabs">
+    <button class="learning-tab active" data-filter="all">すべて</button>
+    <button class="learning-tab" data-filter="in_progress">学習中</button>
+    <button class="learning-tab" data-filter="not_started">未学習</button>
+    <button class="learning-tab" data-filter="completed">完了</button>
+  </div>
+  <div id="learn-chapter-list" class="chapter-list"></div>
+</div>
+
+<!-- ===== チャプター詳細画面 ===== -->
+<div id="screen-detail" class="screen">
+  <div class="detail-header">
+    <button class="back-btn" onclick="goBackFromDetail()">←</button>
+    <div class="detail-title-area">
+      <div id="detail-title" class="detail-title"></div>
+      <div id="detail-meta" class="detail-meta"></div>
+    </div>
+  </div>
+  <div id="detail-content"></div>
+</div>
+
+<!-- ===== 探す画面（コンテンツ生成） ===== -->
+<div id="screen-explore" class="screen">
+  <h2 class="section-title">🔍 新しいチャプターを作る</h2>
+  <div class="generate-card">
+    <h3>✨ AIでチャプターを自動生成</h3>
+    <p>テーマを入力するだけで、AIが学習コンテンツを自動作成します。<br>※ 利用にはAnthropic APIキーが必要です（マイページで設定）</p>
+    <div class="input-group">
+      <label>チャプターのテーマ</label>
+      <input type="text" id="generate-theme" placeholder="例：AIでプレゼン資料を自動作成する方法">
+    </div>
+    <div class="input-group">
+      <label>補足（任意）</label>
+      <textarea id="generate-note" placeholder="特に取り上げてほしい内容があれば記入してください"></textarea>
+    </div>
+    <button class="generate-btn" id="generate-btn" onclick="generateChapter()">🤖 AIでチャプターを生成する</button>
+  </div>
+  <div id="generated-history">
+    <h3 class="section-title" style="margin-top:24px;">📝 生成したチャプター</h3>
+    <div id="generated-list" class="chapter-list"></div>
+  </div>
+</div>
+
+<!-- ===== マイページ ===== -->
+<div id="screen-mypage" class="screen">
+  <div class="profile-card">
+    <div class="profile-avatar">🎓</div>
+    <h3>AI学習者</h3>
+    <p>コツコツ学んで差をつけよう！</p>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div id="stat-total" class="stat-num">0</div>
+      <div class="stat-label">全チャプター</div>
+    </div>
+    <div class="stat-card">
+      <div id="stat-completed" class="stat-num">0</div>
+      <div class="stat-label">完了</div>
+    </div>
+    <div class="stat-card">
+      <div id="stat-progress" class="stat-num">0%</div>
+      <div class="stat-label">進捗率</div>
+    </div>
+  </div>
+  <div class="api-key-section">
+    <h3>🔑 APIキー設定（新規チャプター生成用）</h3>
+    <p>「探す」タブで新しいチャプターをAI生成するにはAPIキーが必要です。初期6章は設定不要で読めます。</p>
+    <div class="api-key-input-wrap">
+      <input type="password" id="api-key-input" placeholder="sk-ant-api03-...">
+      <button class="api-key-save-btn" onclick="saveApiKey()">保存</button>
+    </div>
+    <div id="api-status" class="api-status disconnected">
+      <span>●</span> <span id="api-status-text">未設定</span>
+    </div>
+  </div>
+  <div class="settings-section">
+    <h3>データ管理</h3>
+    <div class="settings-item" onclick="exportData()">
+      <span class="si-icon">📤</span>
+      <span class="si-label">学習データをエクスポート</span>
+      <span class="si-arrow">→</span>
+    </div>
+    <div class="settings-item" onclick="importData()">
+      <span class="si-icon">📥</span>
+      <span class="si-label">学習データをインポート</span>
+      <span class="si-arrow">→</span>
+    </div>
+  </div>
+  <button class="danger-btn" onclick="resetAllData()">🗑 全データをリセット</button>
+  <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+</div>
+
+<!-- ===== ボトムナビゲーション（4タブ） ===== -->
+<nav class="bottom-nav">
+  <button class="nav-item active" data-screen="home">
+    <span class="nav-icon">🏠</span><span>ホーム</span>
+  </button>
+  <button class="nav-item" data-screen="learn">
+    <span class="nav-icon">📖</span><span>学習</span>
+  </button>
+  <button class="nav-item" data-screen="explore">
+    <span class="nav-icon">🔍</span><span>探す</span>
+  </button>
+  <button class="nav-item" data-screen="mypage">
+    <span class="nav-icon">👤</span><span>マイページ</span>
+  </button>
+</nav>
+
+<!-- ===== ローディングオーバーレイ ===== -->
+<div id="loading-overlay" class="loading-overlay">
+  <div class="loading-card">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loading-text">AIがコンテンツを生成中...</div>
+    <div id="loading-sub" class="loading-sub">少々お待ちください</div>
+  </div>
+</div>
+
+<!-- ===== APIキー設定モーダル ===== -->
+<div id="api-modal" class="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-content">
+    <h3>🔑 APIキー設定</h3>
+    <div class="input-group">
+      <label>Anthropic APIキー</label>
+      <input type="password" id="modal-api-key" placeholder="sk-ant-api03-...">
+    </div>
+    <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:12px;">
+      APIキーは <a href="https://console.anthropic.com/" target="_blank" rel="noopener">Anthropic Console</a> から取得できます。<br>
+      初期6章はAPIキー不要で読めます。新しいチャプター生成時のみ必要です。
+    </p>
+    <button class="generate-btn" onclick="saveApiKeyFromModal()">保存する</button>
+    <button class="modal-close" onclick="document.getElementById('api-modal').classList.remove('active')">閉じる</button>
+  </div>
+</div>
+
+<!-- ===== トースト ===== -->
+<div id="toast" class="toast"></div>
+
+<script>
+// ===== 定数 =====
+var STORAGE_KEY = 'ai_learning_chapters';
+var API_KEY_STORAGE = 'ai_learning_api_key';
+var MODEL = 'claude-sonnet-4-20250514';
+
+// ===== 初期6チャプター（コンテンツ埋め込み済み） =====
+var DEFAULT_CHAPTERS = [
+  {
+    id: 'chapter_1',
+    title: 'ChatGPTの基本的な使い方',
+    icon: '🤖',
+    color: 'purple',
+    status: 'not_started',
+    estimatedMinutes: 15,
+    content: {
+      hook: 'レポート書くとき「誰か代わりに調べてくれないかな…」って思ったこと、ない？実はそれ、もうAIにお願いできる時代なんです。',
+      goals: [
+        'ChatGPTなどの対話型AIに質問して、的確な回答を引き出せるようになる',
+        'AIが得意なこと・苦手なことを理解して、上手に使い分けられるようになる',
+        'レポートや日常の調べものにAIを活用する具体的な方法がわかる'
+      ],
+      body: '<h4>そもそもChatGPTって何？</h4><p>ChatGPT（チャットジーピーティー）は、OpenAIが開発した<strong>対話型AI</strong>です。人間が話しかけるように質問を入力すると、自然な文章で回答してくれます。まるで知識豊富な友だちとLINEしてるような感覚で使えるのが特徴です。</p><p>イメージとしては「めちゃくちゃ物知りだけど、たまに自信満々にウソをつく友だち」です。だからこそ、使い方のコツを知っておくことが大事なんです。</p><h4>はじめの一歩：アカウント作成と基本操作</h4><p>ChatGPTを使い始めるのはとても簡単です。</p><ul><li>公式サイトにアクセスしてアカウントを作成（Googleアカウントでもログイン可能）</li><li>テキストボックスに質問を入力してEnterを押すだけ</li><li>無料プランでも十分使える。有料プランにするとより高性能なモデルが使える</li></ul><p>スマホアプリもあるので、通学中でもサクッと使えます。</p><h4>AIが得意なこと・苦手なこと</h4><p>AIを使いこなすには、<strong>得意・不得意を知ること</strong>が最重要です。</p><p><strong>得意なこと：</strong></p><ul><li>文章の要約・言い換え・翻訳</li><li>アイデア出し・ブレインストーミング</li><li>プログラミングコードの生成・デバッグ</li><li>文章の構成案を作る</li></ul><p><strong>苦手なこと：</strong></p><ul><li>最新のニュースや情報（学習データに含まれていない場合がある）</li><li>数学の複雑な計算（電卓の方が確実）</li><li>事実確認が必要な情報（もっともらしいウソ＝ハルシネーションに注意）</li></ul><blockquote>ハルシネーション（幻覚）：AIが事実ではない情報を、あたかも本当のことのように回答してしまう現象のこと。必ず重要な情報は自分でも裏取りしよう。</blockquote><h4>大学生活での具体的な活用シーン</h4><p>では実際にどう使えるのか、大学生にとって身近なシーンで見ていきましょう。</p><p><strong>レポートの下調べ：</strong>テーマについてまず聞いてみて、全体像を把握してから自分で深掘りする。いきなりGoogle検索するより効率的です。</p><p><strong>英語の課題：</strong>「この英文を自然な日本語に訳して」「この日本語を学術的な英語にして」など、翻訳ツールより文脈を理解した訳が出てきます。</p><p><strong>プレゼンの構成：</strong>「〇〇というテーマで5分のプレゼン構成を考えて」と頼めば、たたき台を一瞬で作ってくれます。</p><h4>使うときの注意点</h4><p>AIは便利ですが、いくつか気をつけるべきポイントがあります。</p><ul><li><strong>丸写しはNG：</strong>レポートをそのままコピペするのは不正行為になる可能性があります。あくまで参考・下書きとして使おう</li><li><strong>個人情報は入力しない：</strong>名前・学籍番号・住所などの個人情報は入力しないようにしましょう</li><li><strong>回答を鵜呑みにしない：</strong>AIの回答は必ず自分でも確認しましょう。特に数値やデータは要注意</li></ul>',
+      points: [
+        'ChatGPTは「めちゃくちゃ物知りだけど、たまにウソをつく友だち」。得意・苦手を理解して使おう',
+        'レポートの下調べ・英語の課題・プレゼン構成など、大学生活のあらゆる場面で活用できる',
+        '丸写しNG・個人情報入力NG・回答の裏取りは必須。AIはあくまで「相棒」として使おう'
+      ],
+      practiceWork: '今すぐChatGPTを開いて、次の3つの質問をしてみよう。①「SDGsについて大学1年生にもわかるように300字で説明して」 ②「①の内容を英語に翻訳して」 ③「①の内容で間違っている部分はある？」。3つ目の質問でAIの自己チェック能力を体感できるよ！'
+    }
+  },
+  {
+    id: 'chapter_2',
+    title: 'プロンプトの書き方（指示の出し方）',
+    icon: '✍️',
+    color: 'blue',
+    status: 'not_started',
+    estimatedMinutes: 20,
+    content: {
+      hook: '同じAIを使ってるのに、なんかあの子の方がいい回答もらってる気がする…。その差、実は「質問の仕方」にあるんです。',
+      goals: [
+        'プロンプト（AIへの指示文）の基本構造を理解して、意図した回答を引き出せるようになる',
+        '「役割」「条件」「形式」を指定して、回答の質を劇的に上げるテクニックを習得する',
+        'よくあるダメなプロンプトを改善できるようになる'
+      ],
+      body: '<h4>プロンプトって何？</h4><p><strong>プロンプト</strong>とは、AIに送る指示文・質問文のことです。レストランで注文するのと同じで、「なんかおいしいもの」と頼むより「辛さ控えめの四川麻婆豆腐、ご飯大盛りで」と言った方が、望みどおりのものが出てきますよね。AIも同じです。</p><p>プロンプトの質＝回答の質。これがAI活用の最重要ポイントです。</p><h4>いいプロンプトの3つの要素</h4><p>いいプロンプトには、次の3つの要素が入っています。</p><ul><li><strong>①役割（Role）：</strong>「あなたは〇〇の専門家です」とAIに役割を与える。これだけで回答の専門性が格段に上がります</li><li><strong>②条件（Context）：</strong>背景情報や制約条件を伝える。「大学1年生向けに」「300字以内で」「箇条書きで」など</li><li><strong>③出力形式（Format）：</strong>どんな形で答えてほしいかを指定する。「表形式で」「メリット・デメリットに分けて」など</li></ul><blockquote>覚え方：「誰に・何を・どう答えてほしいか」を明確にすればOK！</blockquote><h4>実例で見る：ダメなプロンプト → いいプロンプト</h4><p><strong>ダメな例：</strong></p><p><code>マーケティングについて教えて</code></p><p>→ 範囲が広すぎて、教科書みたいな一般論が返ってきます。</p><p><strong>改善例：</strong></p><p><code>あなたはマーケティングの大学教授です。大学2年生が初めてマーケティングを学ぶ授業のレポート（2000字）を書くために、以下の内容を箇条書きでまとめてください：①マーケティングの定義 ②4P分析の概要 ③身近な企業での具体例1つ</code></p><p>→ 自分の状況にぴったりの、すぐ使える回答が返ってきます。</p><h4>上級テクニック：ステップバイステップ</h4><p>複雑な作業をさせたいときは、<strong>一度に全部頼まず段階的に指示する</strong>のがコツです。</p><p>例えば、プレゼン資料を作りたいとき：</p><ul><li>ステップ1：「〇〇というテーマでプレゼンの構成案を5スライド分作って」</li><li>ステップ2：「2枚目のスライドの内容をもっと具体的に書いて」</li><li>ステップ3：「全体を大学生向けのカジュアルな口調に直して」</li></ul><p>このように会話を重ねることで、自分の理想に近い成果物に仕上げていけます。</p><h4>もっと使えるプロンプトテンプレート集</h4><p>すぐ使えるテンプレートをいくつか紹介します。自分の状況に合わせてカスタマイズしてみてください。</p><ul><li><strong>要約：</strong>「以下の文章を、大学生にもわかるように3行で要約して。専門用語には簡単な説明を添えて。」</li><li><strong>比較分析：</strong>「AとBの違いを、メリット・デメリットの表形式でまとめて。判断基準も示して。」</li><li><strong>アイデア出し：</strong>「〇〇というテーマで、ユニークなアイデアを10個出して。実現可能性も★3段階で評価して。」</li><li><strong>フィードバック：</strong>「以下の文章を読んで、良い点3つと改善点3つを具体的に指摘して。」</li></ul>',
+      points: [
+        'プロンプトは「役割・条件・出力形式」の3要素を入れると、回答の質が劇的に向上する',
+        '複雑な作業は一度に頼まず、段階的に指示する「ステップバイステップ」が効果的',
+        'テンプレートを自分用にカスタマイズして、使い回せるプロンプト集を作っておくと便利'
+      ],
+      practiceWork: '以下のダメなプロンプトを、3要素（役割・条件・出力形式）を使って改善してみよう。ダメな例：「環境問題について教えて」→ これを改善して実際にAIに送り、改善前と改善後の回答の違いを比べてみてください。びっくりするくらい変わるはずです！'
+    }
+  },
+  {
+    id: 'chapter_3',
+    title: '画像生成AI（Midjourney等）',
+    icon: '🎨',
+    color: 'pink',
+    status: 'not_started',
+    estimatedMinutes: 15,
+    content: {
+      hook: 'インスタで見かけたあのおしゃれな画像、実はAIが作ったものかも？テキストを入力するだけで画像が生成できる時代、知らないのはもったいない！',
+      goals: [
+        '画像生成AIの仕組みと主要なサービスの特徴を理解できるようになる',
+        'テキストから思い通りの画像を生成するためのプロンプトの書き方がわかる',
+        '著作権・倫理面のルールを理解して、安全に画像生成AIを活用できるようになる'
+      ],
+      body: '<h4>画像生成AIってどういう仕組み？</h4><p>画像生成AIは、<strong>テキスト（言葉）を入力すると、それに合った画像を自動で作ってくれるAI</strong>です。「text-to-image（テキスト・トゥ・イメージ）」とも呼ばれます。</p><p>イメージとしては、超優秀なイラストレーターに口頭で「こんな絵を描いて」と伝えると、数秒で描き上げてくれる感じです。大量の画像データから学習しているので、写真風・イラスト風・油絵風など、さまざまなスタイルで画像を生成できます。</p><h4>主な画像生成AIサービス</h4><p>代表的なサービスをいくつか紹介します。それぞれ特徴が異なるので、目的に合わせて選びましょう。</p><ul><li><strong>Midjourney：</strong>アートやデザイン寄りの高品質な画像が得意。Discordというチャットアプリ上で動作するのが特徴。有料プランのみ</li><li><strong>DALL-E（ダリ）：</strong>OpenAIが開発。ChatGPT内から使える手軽さが魅力。自然な画像からイラストまで幅広く対応</li><li><strong>Stable Diffusion：</strong>オープンソース（ソースコードが公開されていて誰でも使える）の画像生成AI。カスタマイズ性が高く、自分のPCでも動かせる</li><li><strong>Adobe Firefly：</strong>Adobe社が開発。商用利用を意識して学習データの著作権に配慮している点が特徴</li></ul><h4>いい画像を生成するプロンプトのコツ</h4><p>画像生成AIでも、プロンプト（指示文）の書き方が結果を大きく左右します。</p><p><strong>基本の構成：</strong></p><p><code>被写体 + スタイル + 雰囲気 + 構図 + 品質</code></p><p>例：「カフェでラテを飲む大学生、アニメ風イラスト、温かい午後の光、上半身アップ、高品質」</p><p><strong>コツ：</strong></p><ul><li>具体的に書くほど理想に近づく（「動物」より「柴犬の子犬」）</li><li>スタイルを指定する（「水彩画風」「サイバーパンク風」「ジブリ風」など）</li><li>英語で指示した方が精度が高い場合が多い</li><li>ネガティブプロンプト（「入れたくない要素」の指定）も活用する</li></ul><h4>著作権と倫理：絶対に知っておくべきルール</h4><p>画像生成AIは楽しいですが、<strong>著作権や倫理面のルール</strong>は必ず押さえておきましょう。</p><ul><li><strong>生成画像の著作権：</strong>国や状況によって判断が分かれている段階。商用利用する場合はサービスの利用規約を必ず確認すること</li><li><strong>他人の作品スタイルの模倣：</strong>「〇〇（実在のアーティスト名）風で」という指示は、倫理的にグレーな場合がある</li><li><strong>実在の人物の画像生成：</strong>有名人や知人の顔を勝手に生成するのは、肖像権やプライバシーの侵害になりうる。絶対にやめよう</li><li><strong>フェイク画像の拡散：</strong>AIで作った画像を本物のように広めるのは社会問題になっている。生成画像であることは明示しよう</li></ul><blockquote>ルール：「その画像を作られた人がどう思うか」を想像してから使う。これが基本のモラルです。</blockquote>',
+      points: [
+        '画像生成AIは「被写体＋スタイル＋雰囲気＋構図＋品質」で指示すると、思い通りの画像に近づく',
+        'Midjourney・DALL-E・Stable Diffusion・Adobe Fireflyなど複数サービスがあり、目的に応じて使い分けよう',
+        '著作権・肖像権・フェイク画像のリスクは必ず理解した上で使うこと。「作られた側の気持ち」を想像するのが基本'
+      ],
+      practiceWork: 'DALL-E（ChatGPTから利用可能）やCanvaのAI画像生成機能（無料で使える）を使って、「自分の理想の勉強スペース」を画像生成してみよう。まずは短い指示で1枚生成し、次にスタイル・雰囲気・細部の指定を追加して2枚目を生成。プロンプトの違いで画像がどう変わるか、比べてみてください！'
+    }
+  },
+  {
+    id: 'chapter_4',
+    title: 'AIで副業・マネタイズする方法',
+    icon: '💰',
+    color: 'green',
+    status: 'not_started',
+    estimatedMinutes: 25,
+    content: {
+      hook: '「AIで稼げるらしいけど、具体的に何すればいいの？」って思ってる人、多いよね。怪しい情報じゃなく、大学生が現実的にできる方法を正直に教えます。',
+      goals: [
+        'AIを活用した副業の具体的なジャンルと、それぞれの現実的な収益イメージがわかる',
+        '大学生でも始められる低リスクなAI副業の始め方を理解できる',
+        '詐欺的な「AI副業」情報を見抜けるようになる'
+      ],
+      body: '<h4>まず大前提：AI副業の現実</h4><p>SNSでは「AIで月収100万！」みたいな投稿が溢れていますが、正直に言います。<strong>AIは「稼ぐ魔法の杖」ではなく「作業効率を爆上げするツール」</strong>です。</p><p>つまり、AIだけで勝手にお金が入ってくるわけではなく、「自分のスキル × AI」で価値を提供することで収益が生まれます。この前提を忘れないでください。</p><h4>大学生におすすめのAI副業5選</h4><p>現実的に大学生が始められるものを厳選しました。</p><p><strong>① Webライティング（AIアシスト）</strong></p><p>AIで下書きを作り、自分の知識や体験で肉付けして記事を書く方法。クラウドソーシングサイトで案件を受注できます。AIがゼロから書いた文章をそのまま納品するのはNGですが、下調べや構成案づくりに活用すれば執筆スピードが2〜3倍になります。</p><p><strong>② SNSコンテンツ制作</strong></p><p>AIで画像を生成したり、投稿文のアイデアを出してもらったりして、SNS運用を効率化。自分のアカウントを育てることも、企業のSNS運用代行をすることもできます。</p><p><strong>③ デザイン・イラスト制作</strong></p><p>画像生成AIを使って、ロゴやバナー、アイキャッチ画像などを制作。Canvaなどのデザインツールと組み合わせると、デザイン未経験でもそれなりのクオリティが出せます。</p><p><strong>④ プログラミング（AIコーディング）</strong></p><p>AIにコードを書いてもらいながら、Webサイトやアプリを開発。プログラミングの基礎知識があれば、AIの力で開発速度が大幅アップします。</p><p><strong>⑤ 教育・チュートリアル作成</strong></p><p>AIの使い方自体を教えるコンテンツを作る。ブログ、YouTube、noteなどで情報発信して広告収入やコンテンツ販売につなげる方法です。</p><h4>始め方のステップ</h4><ul><li><strong>ステップ1：</strong>まず1つのジャンルを選ぶ（興味があるもの優先）</li><li><strong>ステップ2：</strong>無料ツールで小さく試してみる（いきなり有料ツールに課金しない）</li><li><strong>ステップ3：</strong>ポートフォリオ（実績集）を作る</li><li><strong>ステップ4：</strong>クラウドソーシングやSNSで営業する</li></ul><blockquote>最初の1件をもらうのが一番大変。でもその1件の実績が次につながる。焦らずコツコツが大事です。</blockquote><h4>こんな「AI副業」は詐欺！見抜くポイント</h4><p>残念ながら、AI副業ブームに便乗した詐欺も増えています。以下のパターンには要注意。</p><ul><li>「初期費用〇〇万円で、AIが自動で稼いでくれるシステムを販売します」→ ほぼ詐欺</li><li>「この教材を買えば誰でも簡単に月50万」→ 誇大広告</li><li>「LINEに登録して限定情報をゲット」→ 高額商材への誘導パターン</li><li>「AIで作った記事を大量投稿するだけ」→ 規約違反でアカウント停止リスク</li></ul><p><strong>見抜くコツ：</strong>「楽して」「誰でも」「確実に」のワードが3つ揃ったら、ほぼ間違いなく怪しいです。</p>',
+      points: [
+        'AIは「魔法の杖」ではなく「効率化ツール」。自分のスキル × AIで価値を提供するのが正しい稼ぎ方',
+        'まずは無料ツールで小さく始めて、実績を1つ作ることが最優先。焦って課金しないこと',
+        '「楽して・誰でも・確実に」が揃った副業情報は詐欺の可能性大。冷静に判断しよう'
+      ],
+      practiceWork: '自分が「AIを使って提供できそうな価値」を3つ書き出してみよう。例：「英語が得意だから、AIで翻訳の下書きを作って校正サービスを提供」など。その中から1つ選んで、AIに「このサービスを大学生が副業として始めるための具体的な手順を5ステップで教えて」と聞いてみよう。'
+    }
+  },
+  {
+    id: 'chapter_5',
+    title: '就活・レポートへのAI活用',
+    icon: '📝',
+    color: 'orange',
+    status: 'not_started',
+    estimatedMinutes: 20,
+    content: {
+      hook: 'ES（エントリーシート）って書くの大変だし、レポートの締切はいつも迫ってくるし…。AIをうまく使えば、質を上げながら時間を節約できるんです。',
+      goals: [
+        'ESの添削・自己分析・企業研究にAIを活用する具体的な方法がわかる',
+        'レポート作成でAIを「不正にならない範囲」で賢く使えるようになる',
+        '大学や企業のAI利用ポリシーを理解し、ルールを守った活用ができるようになる'
+      ],
+      body: '<h4>就活でのAI活用：ES編</h4><p>就活で最も時間がかかる作業の一つがES（エントリーシート）作成。AIを使えば効率化できますが、<strong>使い方を間違えると逆効果</strong>になるので注意が必要です。</p><p><strong>効果的な使い方：</strong></p><ul><li>自分で書いたESをAIに添削してもらう（「この文章をより具体的で説得力のある表現に改善して」）</li><li>自己分析の壁打ち相手にする（「私の強みは〇〇です。これを活かせる仕事はどんなものがある？」）</li><li>企業研究の効率化（「〇〇社の事業内容を大学生向けに3分で読める長さでまとめて」）</li></ul><p><strong>NGな使い方：</strong></p><ul><li>AIにゼロからESを書かせてそのまま提出 → 面接で深掘りされたとき答えられない</li><li>全企業に同じAI生成文を使い回す → 企業ごとのカスタマイズがないとバレる</li></ul><blockquote>ESは「あなた自身の言葉で書く」のが大前提。AIはあくまで壁打ち相手・添削役として使おう。</blockquote><h4>就活でのAI活用：面接対策編</h4><p>面接対策にもAIは使えます。</p><ul><li><strong>模擬面接：</strong>「あなたは〇〇業界の面接官です。私に志望動機を聞いてください。回答後にフィードバックもお願いします」とAIに頼めば、何度でも練習できます</li><li><strong>想定質問リスト：</strong>「〇〇社の面接で聞かれそうな質問を10個挙げて」で準備が捗る</li><li><strong>逆質問の準備：</strong>「〇〇社に聞くと好印象を与えられる逆質問を5つ考えて」</li></ul><h4>レポート作成でのAI活用</h4><p>大学のレポート作成でAIを使うときは、<strong>大学ごとのポリシーを必ず確認</strong>してください。大学によってAI利用のルールは異なります。</p><p><strong>一般的に認められやすい使い方：</strong></p><ul><li>テーマに関するブレインストーミング</li><li>文章の校正・推敲の補助</li><li>参考文献の探し方を聞く（ただし実在するか必ず確認）</li><li>構成案のたたき台を作る</li></ul><p><strong>一般的にNGとされる使い方：</strong></p><ul><li>AIの出力をそのままレポートとして提出</li><li>AIが生成した文章を自分が書いたと偽る</li><li>AIに出典を作らせる（架空の論文を引用するリスク）</li></ul><h4>AI利用を明記する方法</h4><p>最近は「AI利用の有無を申告すること」を求める大学も増えています。使った場合は正直に申告しましょう。</p><p>記載例：「本レポートの構成案作成にChatGPTを使用しました。本文は自分自身で執筆し、事実確認は学術論文を参照しています。」</p><p>正直に書いた方が、むしろ「AIリテラシーがある」と好印象になるケースも増えています。</p>',
+      points: [
+        'ES作成ではAIを「添削役・壁打ち相手」として使う。ゼロから書かせてそのまま提出は逆効果',
+        'レポートでのAI活用は大学のポリシーを必ず確認。使った場合は正直に申告しよう',
+        'AI活用を正直に明記できることが「AIリテラシーの高さ」のアピールにもなる'
+      ],
+      practiceWork: '自分の「強み」を3つ書き出して、AIに「この3つの強みを活かしたガクチカ（学生時代に力を入れたこと）のエピソードの組み立て方を教えて」と聞いてみよう。出てきた回答を参考に、自分だけのエピソードを300字で書いてみてください。'
+    }
+  },
+  {
+    id: 'chapter_6',
+    title: 'Claude / Gemini など複数AIの使い分け',
+    icon: '🔄',
+    color: 'teal',
+    status: 'not_started',
+    estimatedMinutes: 15,
+    content: {
+      hook: 'ChatGPTだけ使ってるのはもったいない！実はAIにもそれぞれ「個性」があって、場面によって使い分けると効率が段違いなんです。',
+      goals: [
+        'ChatGPT・Claude・Geminiなど主要AIの特徴と得意分野を理解できる',
+        '目的に応じて最適なAIを選べるようになる',
+        '複数のAIを組み合わせて使う実践的なワークフローがわかる'
+      ],
+      body: '<h4>主要AIサービスの特徴マップ</h4><p>2024〜2025年現在、大学生が使える主なAIサービスを紹介します。それぞれに「個性」があるので、得意分野を知っておくと便利です。</p><p><strong>ChatGPT（OpenAI）</strong></p><ul><li>最も有名で利用者が多い</li><li>幅広い質問に対応できるオールラウンダー</li><li>プラグインやGPTsで機能拡張が豊富</li><li>画像生成（DALL-E）やファイル分析もできる</li><li>無料プランあり、有料プランで最新モデルが使える</li></ul><p><strong>Claude（Anthropic）</strong></p><ul><li>長い文章の読み込み・分析が得意（一度に数万字を処理可能）</li><li>論理的で丁寧な回答が特徴</li><li>安全性を重視した設計</li><li>長文レポートの添削や論文の要約に強い</li><li>無料プランあり、有料プランで拡張可能</li></ul><p><strong>Gemini（Google）</strong></p><ul><li>Googleの検索機能と連携し、最新情報へのアクセスが強い</li><li>Gmail・Googleドキュメントなど Google系サービスとの連携が便利</li><li>画像・動画の分析にも対応</li><li>無料で使える範囲が比較的広い</li></ul><p><strong>Perplexity AI</strong></p><ul><li>「AI検索エンジン」的な位置づけ</li><li>回答に情報源のリンクを付けてくれるので、裏取りが楽</li><li>レポートの参考情報集めに最適</li><li>無料プランあり</li></ul><h4>シーン別おすすめAI</h4><p>どのAIを使うか迷ったら、この使い分けを参考にしてみてください。</p><ul><li><strong>レポートの下調べ → Perplexity AI</strong>（出典付きで信頼性が高い）</li><li><strong>長い論文の要約 → Claude</strong>（大量のテキストを一度に処理できる）</li><li><strong>アイデア出し・ブレスト → ChatGPT</strong>（創造性のある回答が得意）</li><li><strong>最新ニュースの確認 → Gemini</strong>（Google検索との連携）</li><li><strong>プログラミング → ChatGPT or Claude</strong>（どちらもコード生成に強い）</li><li><strong>画像生成 → ChatGPT（DALL-E）or Midjourney</strong></li></ul><h4>複数AIを組み合わせるワークフロー</h4><p>上級者は、<strong>1つの作業で複数のAIを使い分け</strong>ます。例えば、レポート作成なら：</p><ul><li><strong>①調査：</strong>Perplexity AIで出典付きの情報を集める</li><li><strong>②構成案：</strong>ChatGPTに構成案を考えてもらう</li><li><strong>③執筆：</strong>自分で書く（ここはAIに頼らない！）</li><li><strong>④添削：</strong>Claudeに長文を読み込ませて、論理の矛盾や改善点を指摘してもらう</li></ul><p>こうすることで、各AIの強みを活かした高品質なアウトプットが生まれます。</p><h4>注意：AIの回答を比較する習慣をつけよう</h4><p>同じ質問でも、AIによって回答が異なることがあります。特に重要な情報は、<strong>2つ以上のAIに聞いて回答を比較する</strong>のがおすすめです。</p><p>回答が一致していれば信頼度アップ。食い違っていたら、自分で一次情報を確認しましょう。これは情報リテラシーの基本であり、AI時代に最も重要なスキルの一つです。</p>',
+      points: [
+        'AIにはそれぞれ得意分野がある。ChatGPTはオールラウンド、Claudeは長文分析、Geminiは最新情報、Perplexityは出典付き検索',
+        '1つの作業で複数のAIを使い分けると、アウトプットの質が格段に上がる',
+        '重要な情報は2つ以上のAIに聞いて比較するクセをつけよう。AI時代の最重要スキルは「情報の裏取り」'
+      ],
+      practiceWork: '同じ質問「大学生が今すぐ始められるAI活用法を3つ教えて」を、ChatGPT・Claude・Geminiの3つに聞いてみよう（無料で使えます）。回答の違いを比較して、「どのAIがどんな回答スタイルか」を自分の言葉でメモしてみてください。これが自分だけの「AI使い分けマニュアル」の第一歩になります！'
+    }
+  }
+];
+
+// AIコンテンツ生成用システムプロンプト
+var SYSTEM_PROMPT = 'あなたは大学生向けのAI活用教材を作るライターです。\n以下のルールで記事を書いてください。\n\n【トーン】\n- 「ちょっと先を行くデキる先輩」が教えてくれる感じ\n- カジュアルだけど知識は本物・実践的\n- 難しい内容には必ず例え話・具体例を入れる\n- 章の冒頭は共感できる一言から始める\n  例：「レポート、ChatGPTに手伝ってもらいたいって思ったことない？」\n\n【構成】（必ずこの順番で）\n1. つかみの一言（共感・問いかけ）\n2. この章で何ができるようになるか（箇条書き3つ）\n3. 本文解説（見出しを使って読みやすく。4つ以上のセクションに分けて詳しく書くこと）\n4. ポイントまとめ（3つ）\n5. 実践ワーク（今すぐ試せる課題を1つ）\n\n【NGルール】\n- 特定ツールを「これだけ使え」と断言しない\n- 「簡単に月100万稼げる」など誇大表現を使わない\n- 著作権・倫理的にグレーな使い方を推奨しない\n- 専門用語は初出時に必ず一言で説明する\n- ツールの料金・プランは具体的な数字を避け「無料プランあり」「有料プランで拡張可能」などの表現にする\n\n【出力形式】\n必ず以下のJSON形式のみを出力してください。JSON以外のテキスト（説明文やマークダウン記法など）は一切含めないでください。\n{\n  "hook": "つかみの一言",\n  "goals": ["できること1", "できること2", "できること3"],\n  "body": "本文解説のHTML（h4, p, ul, li, strong, blockquote, codeタグを使用可能）",\n  "points": ["ポイント1の説明文", "ポイント2の説明文", "ポイント3の説明文"],\n  "practiceWork": "実践ワークの内容（具体的な手順を含めること）"\n}';
+
+// ===== 状態管理 =====
+var chapters = [];
+var currentScreen = 'home';
+var previousScreen = 'home';
+var currentLearnFilter = 'all';
+
+// ===== 初期化 =====
+function init() {
+  loadChapters();
+  setupNavigation();
+  setupLearningTabs();
+  updateWelcomeGreeting();
+  renderHome();
+  updateApiStatus();
+}
+
+function updateWelcomeGreeting() {
+  var h = new Date().getHours();
+  var el = document.getElementById('welcome-greeting');
+  if (h < 6) el.textContent = '夜更かしして勉強？偉い！';
+  else if (h < 12) el.textContent = 'おはよう！今日もAIを学ぼう！';
+  else if (h < 18) el.textContent = '午後も集中！AIスキルアップ！';
+  else el.textContent = '今日もお疲れさま！AIを学ぼう！';
+}
+
+// ===== localStorage操作 =====
+function loadChapters() {
+  try {
+    var stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      chapters = JSON.parse(stored);
+    }
+  } catch (e) {
+    chapters = [];
+  }
+  // 初回アクセス時：初期6章を自動セット
+  if (chapters.length === 0) {
+    chapters = DEFAULT_CHAPTERS.map(function(ch) {
+      return JSON.parse(JSON.stringify(ch)); // ディープコピー
+    });
+    saveChapters();
+  }
+}
+
+function saveChapters() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(chapters));
+  } catch (e) {
+    showToast('⚠️ データの保存に失敗しました');
+  }
+}
+
+function getApiKey() {
+  return localStorage.getItem(API_KEY_STORAGE) || '';
+}
+
+// ===== ナビゲーション =====
+function setupNavigation() {
+  document.querySelectorAll('.nav-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      switchScreen(item.dataset.screen);
+    });
+  });
+}
+
+function switchScreen(screenId) {
+  if (currentScreen !== 'detail') previousScreen = currentScreen;
+  currentScreen = screenId;
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('screen-' + screenId).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  var navItem = document.querySelector('.nav-item[data-screen="' + screenId + '"]');
+  if (navItem) navItem.classList.add('active');
+  if (screenId === 'home') renderHome();
+  else if (screenId === 'learn') renderLearn();
+  else if (screenId === 'explore') renderExplore();
+  else if (screenId === 'mypage') renderMyPage();
+  window.scrollTo(0, 0);
+}
+
+function goBackFromDetail() { switchScreen(previousScreen); }
+
+// ===== ホーム画面 =====
+function renderHome() {
+  renderProgress();
+  renderRecommend();
+  renderChapterList();
+}
+
+function renderProgress() {
+  var total = chapters.length;
+  var completed = chapters.filter(function(c) { return c.status === 'completed'; }).length;
+  var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = completed + ' / ' + total + ' チャプター完了';
+}
+
+function renderRecommend() {
+  var area = document.getElementById('recommend-area');
+  var next = chapters.find(function(c) { return c.status === 'in_progress'; });
+  if (!next) next = chapters.find(function(c) { return c.status === 'not_started'; });
+  if (!next) {
+    if (chapters.length > 0 && chapters.every(function(c) { return c.status === 'completed'; })) {
+      area.innerHTML = '<div class="recommend-card" style="border-left-color:var(--accent-green);cursor:default;"><div class="recommend-label" style="color:var(--accent-green);">🎉 おめでとう！</div><div class="recommend-title">全チャプター完了！</div><div class="recommend-desc">「探す」タブから新しいチャプターを追加してみよう</div></div>';
+    } else { area.innerHTML = ''; }
+    return;
+  }
+  area.innerHTML = '<div class="recommend-card" onclick="openChapter(\'' + next.id + '\')"><div class="recommend-label">⭐ 今日のおすすめ</div><div class="recommend-title">' + next.icon + ' ' + next.title + '</div><div class="recommend-desc">約' + next.estimatedMinutes + '分で学べます</div></div>';
+}
+
+function renderChapterList() {
+  var list = document.getElementById('chapter-list');
+  if (chapters.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">チャプターがありません</div></div>';
+    return;
+  }
+  list.innerHTML = chapters.map(function(ch) { return buildChapterCard(ch); }).join('');
+}
+
+function buildChapterCard(ch) {
+  var labels = { not_started: '未学習', in_progress: '学習中', completed: '完了' };
+  return '<div class="chapter-card" onclick="openChapter(\'' + ch.id + '\')"><div class="chapter-icon ' + ch.color + '">' + ch.icon + '</div><div class="chapter-info"><div class="chapter-title">' + escapeHtml(ch.title) + '</div><div class="chapter-meta"><span class="status-badge ' + ch.status + '">' + labels[ch.status] + '</span><span>約' + ch.estimatedMinutes + '分</span></div></div><span class="chapter-arrow">›</span></div>';
+}
+
+// ===== 学習画面 =====
+function setupLearningTabs() {
+  document.querySelectorAll('.learning-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.learning-tab').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentLearnFilter = tab.dataset.filter;
+      renderLearnList();
+    });
+  });
+}
+
+function renderLearn() {
+  var total = chapters.length;
+  var completed = chapters.filter(function(c) { return c.status === 'completed'; }).length;
+  var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  document.getElementById('learn-stat-progress').textContent = pct + '%';
+  document.getElementById('learn-stat-done').textContent = completed;
+  document.getElementById('learn-stat-remaining').textContent = (total - completed);
+  renderLearnList();
+}
+
+function renderLearnList() {
+  var list = document.getElementById('learn-chapter-list');
+  var filtered = (currentLearnFilter === 'all') ? chapters : chapters.filter(function(c) { return c.status === currentLearnFilter; });
+  if (filtered.length === 0) {
+    var msgs = { all: 'チャプターがありません', in_progress: '学習中のチャプターはありません', not_started: '未学習のチャプターはありません', completed: '完了したチャプターはありません' };
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">' + msgs[currentLearnFilter] + '</div></div>';
+    return;
+  }
+  list.innerHTML = filtered.map(function(ch) { return buildChapterCard(ch); }).join('');
+}
+
+// ===== チャプター詳細 =====
+function openChapter(chapterId) {
+  var chapter = chapters.find(function(c) { return c.id === chapterId; });
+  if (!chapter) return;
+  if (chapter.status === 'not_started') { chapter.status = 'in_progress'; saveChapters(); }
+  document.getElementById('detail-title').textContent = chapter.icon + ' ' + chapter.title;
+  var statusText = chapter.status === 'completed' ? '✅ 完了済み' : '📖 学習中';
+  document.getElementById('detail-meta').textContent = '約' + chapter.estimatedMinutes + '分 • ' + statusText;
+
+  var content = chapter.content;
+  if (!content) {
+    document.getElementById('detail-content').innerHTML = '<div class="content-section" style="text-align:center;padding:48px 20px;"><div style="font-size:3rem;margin-bottom:12px;">🔄</div><p style="color:var(--text-secondary);margin-bottom:16px;">コンテンツがまだ生成されていません</p><button class="generate-btn" style="max-width:280px;margin:0 auto;" onclick="regenerateChapter(\'' + chapterId + '\')">🤖 コンテンツを生成する</button></div>';
+    switchScreen('detail');
+    return;
+  }
+
+  var isCompleted = chapter.status === 'completed';
+  document.getElementById('detail-content').innerHTML =
+    '<div class="detail-hero"><div class="hero-icon">' + chapter.icon + '</div><div class="hero-desc">' + escapeHtml(content.hook) + '</div></div>' +
+    '<div class="content-section"><h3>🎯 この章で学べること</h3><ul class="goals-list">' + content.goals.map(function(g) { return '<li><span class="goal-check">✅</span><span>' + escapeHtml(g) + '</span></li>'; }).join('') + '</ul></div>' +
+    '<div class="content-section"><h3>📖 本文</h3><div class="body-content">' + content.body + '</div></div>' +
+    '<div class="content-section"><h3>💡 ポイントまとめ</h3><div class="points-grid">' + content.points.map(function(p, i) { return '<div class="point-card"><div class="point-num">' + (i + 1) + '</div><div class="point-text">' + escapeHtml(p) + '</div></div>'; }).join('') + '</div></div>' +
+    '<div class="content-section"><h3>🏋️ 実践ワーク</h3><div class="practice-box"><div class="practice-label">✏️ TRY IT NOW!</div><div class="practice-text">' + escapeHtml(content.practiceWork) + '</div></div></div>' +
+    '<button class="complete-btn ' + (isCompleted ? 'completed' : '') + '" onclick="toggleComplete(\'' + chapterId + '\')">' + (isCompleted ? '✅ 完了済み（タップで取り消し）' : '✅ この章を完了にする') + '</button>';
+  switchScreen('detail');
+}
+
+function toggleComplete(chapterId) {
+  var chapter = chapters.find(function(c) { return c.id === chapterId; });
+  if (!chapter) return;
+  if (chapter.status === 'completed') { chapter.status = 'in_progress'; showToast('完了を取り消しました'); }
+  else { chapter.status = 'completed'; showToast('🎉 チャプター完了！おめでとう！'); }
+  saveChapters();
+  openChapter(chapterId);
+}
+
+async function regenerateChapter(chapterId) {
+  var chapter = chapters.find(function(c) { return c.id === chapterId; });
+  if (!chapter) return;
+  var apiKey = getApiKey();
+  if (!apiKey) { showToast('⚠️ APIキーを設定してください'); switchScreen('mypage'); return; }
+  showLoading('「' + chapter.title + '」を生成中...');
+  var content = await callAnthropicAPI(apiKey, chapter.title);
+  hideLoading();
+  if (content) { chapter.content = content; saveChapters(); openChapter(chapterId); showToast('✨ コンテンツを生成しました'); }
+}
+
+// ===== 探す画面 =====
+function renderExplore() {
+  var genList = document.getElementById('generated-list');
+  var userGenerated = chapters.filter(function(c) { return c.id.startsWith('chapter_custom_'); });
+  if (userGenerated.length === 0) { document.getElementById('generated-history').style.display = 'none'; return; }
+  document.getElementById('generated-history').style.display = 'block';
+  genList.innerHTML = userGenerated.map(function(ch) { return buildChapterCard(ch); }).join('');
+}
+
+// ===== マイページ =====
+function renderMyPage() {
+  var total = chapters.length;
+  var completed = chapters.filter(function(c) { return c.status === 'completed'; }).length;
+  var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-completed').textContent = completed;
+  document.getElementById('stat-progress').textContent = pct + '%';
+  updateApiStatus();
+}
+
+function updateApiStatus() {
+  var key = getApiKey();
+  var statusEl = document.getElementById('api-status');
+  var statusText = document.getElementById('api-status-text');
+  var input = document.getElementById('api-key-input');
+  if (key) { statusEl.className = 'api-status connected'; statusText.textContent = '設定済み（' + key.slice(0, 12) + '...）'; input.value = key; }
+  else { statusEl.className = 'api-status disconnected'; statusText.textContent = '未設定（初期6章はキー不要で読めます）'; input.value = ''; }
+}
+
+function saveApiKey() {
+  var key = document.getElementById('api-key-input').value.trim();
+  if (!key) { showToast('⚠️ APIキーを入力してください'); return; }
+  localStorage.setItem(API_KEY_STORAGE, key);
+  updateApiStatus();
+  showToast('✅ APIキーを保存しました');
+}
+
+function showApiKeyModal() {
+  document.getElementById('modal-api-key').value = getApiKey();
+  document.getElementById('api-modal').classList.add('active');
+}
+
+function saveApiKeyFromModal() {
+  var key = document.getElementById('modal-api-key').value.trim();
+  if (!key) { showToast('⚠️ APIキーを入力してください'); return; }
+  localStorage.setItem(API_KEY_STORAGE, key);
+  document.getElementById('api-modal').classList.remove('active');
+  updateApiStatus();
+  document.getElementById('api-key-input').value = key;
+  showToast('✅ APIキーを保存しました');
+}
+
+function closeModal(e) { if (e.target === e.currentTarget) e.target.classList.remove('active'); }
+
+// ===== Anthropic API =====
+async function callAnthropicAPI(apiKey, theme, note) {
+  var userMsg = note ? '「' + theme + '」というテーマで大学生向けのAI活用チャプターを書いてください。\n補足: ' + note : '「' + theme + '」というテーマで大学生向けのAI活用チャプターを書いてください。';
+  try {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: MODEL, max_tokens: 4096, system: SYSTEM_PROMPT, messages: [{ role: 'user', content: userMsg }] })
+    });
+    if (!response.ok) { var err = {}; try { err = await response.json(); } catch(e) {} throw new Error((err.error && err.error.message) || 'API Error: ' + response.status); }
+    var data = await response.json();
+    var text = data.content[0].text;
+    var jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('JSON形式の応答を取得できませんでした');
+    var parsed = JSON.parse(jsonMatch[0]);
+    if (!parsed.hook || !parsed.goals || !parsed.body || !parsed.points || !parsed.practiceWork) throw new Error('生成されたコンテンツの形式が不正です');
+    return parsed;
+  } catch (error) { hideLoading(); showToast('❌ ' + error.message); return null; }
+}
+
+// ===== 新規チャプター生成 =====
+async function generateChapter() {
+  var theme = document.getElementById('generate-theme').value.trim();
+  var note = document.getElementById('generate-note').value.trim();
+  if (!theme) { showToast('⚠️ テーマを入力してください'); return; }
+  var apiKey = getApiKey();
+  if (!apiKey) { showToast('⚠️ APIキーを設定してください（マイページ）'); switchScreen('mypage'); return; }
+  var btn = document.getElementById('generate-btn');
+  btn.disabled = true;
+  showLoading('「' + theme + '」を生成中...');
+  var content = await callAnthropicAPI(apiKey, theme, note);
+  hideLoading();
+  btn.disabled = false;
+  if (content) {
+    var icons = ['🧠','💡','⚡','🎯','🌟','🔮','📱','🛠️','🎓','🚀'];
+    var colors = ['purple','blue','pink','green','orange','teal'];
+    var id = 'chapter_custom_' + Date.now();
+    chapters.push({ id: id, title: theme, icon: icons[Math.floor(Math.random()*icons.length)], color: colors[Math.floor(Math.random()*colors.length)], status: 'not_started', estimatedMinutes: 15, content: content });
+    saveChapters();
+    document.getElementById('generate-theme').value = '';
+    document.getElementById('generate-note').value = '';
+    showToast('✨ 新しいチャプターを作成しました！');
+    renderExplore();
+    openChapter(id);
+  }
+}
+
+// ===== データ管理 =====
+function exportData() {
+  if (chapters.length === 0) { showToast('⚠️ エクスポートするデータがありません'); return; }
+  var blob = new Blob([JSON.stringify(chapters, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'ai_learning_data_' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  showToast('📤 データをエクスポートしました');
+}
+
+function importData() { document.getElementById('import-file').click(); }
+
+function handleImport(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) throw new Error('不正な形式');
+      if (!confirm(imported.length + '件のチャプターをインポートします。現在のデータは上書きされます。')) return;
+      chapters = imported; saveChapters(); renderHome(); renderMyPage();
+      showToast('📥 ' + imported.length + '件をインポートしました');
+    } catch (err) { showToast('❌ インポート失敗: ' + err.message); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function resetAllData() {
+  if (chapters.length === 0) { showToast('リセットするデータがありません'); return; }
+  if (!confirm('全データをリセットしますか？（初期6章は再セットされます）')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  chapters = DEFAULT_CHAPTERS.map(function(ch) { return JSON.parse(JSON.stringify(ch)); });
+  saveChapters();
+  renderHome(); renderMyPage();
+  showToast('🔄 データをリセットしました（初期6章を再セット）');
+}
+
+// ===== UI ヘルパー =====
+function showLoading(text, sub) {
+  document.getElementById('loading-text').textContent = text || 'AIがコンテンツを生成中...';
+  document.getElementById('loading-sub').textContent = sub || '少々お待ちください';
+  document.getElementById('loading-overlay').classList.add('active');
+}
+function hideLoading() { document.getElementById('loading-overlay').classList.remove('active'); }
+function showToast(message) {
+  var toast = document.getElementById('toast');
+  toast.textContent = message; toast.classList.add('show');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(function() { toast.classList.remove('show'); }, 2800);
+}
+function escapeHtml(str) { if (!str) return ''; var div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+
+// ===== 起動 =====
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
