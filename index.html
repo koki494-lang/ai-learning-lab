@@ -1230,12 +1230,23 @@ function loadChapters() {
   } catch (e) {
     chapters = [];
   }
-  // 初回アクセス時：初期6章を自動セット
+  // 初回アクセス時：全デフォルトチャプターをセット
   if (chapters.length === 0) {
     chapters = DEFAULT_CHAPTERS.map(function(ch) {
-      return JSON.parse(JSON.stringify(ch)); // ディープコピー
+      return JSON.parse(JSON.stringify(ch));
     });
     saveChapters();
+  } else {
+    // 既存ユーザー向け：新しいデフォルトチャプターがあれば自動追加
+    var added = false;
+    DEFAULT_CHAPTERS.forEach(function(def) {
+      var exists = chapters.some(function(c) { return c.id === def.id; });
+      if (!exists) {
+        chapters.push(JSON.parse(JSON.stringify(def)));
+        added = true;
+      }
+    });
+    if (added) saveChapters();
   }
 }
 
