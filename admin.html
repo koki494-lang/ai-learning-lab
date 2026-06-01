@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理者ページ - AI学習ラボ</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+  background: #F5F3FF; color: #1a1a2e; line-height: 1.7;
+  min-height: 100vh;
+}
+:root {
+  --primary: #7F77DD; --primary-dark: #5A50C7; --primary-surface: #EDE9FE;
+  --accent-green: #34D399; --accent-red: #F87171; --accent-orange: #FBBF24;
+  --text-secondary: #6B7280; --white: #FFFFFF;
+  --radius: 16px; --radius-sm: 10px;
+  --shadow-sm: 0 1px 3px rgba(127,119,221,0.1);
+}
+.admin-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d2b55 100%);
+  color: white; padding: 20px 24px;
+}
+.admin-header h1 { font-size: 1.2rem; }
+.admin-header p { font-size: 0.75rem; opacity: 0.7; }
+.admin-header .logout-btn {
+  position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,0.15); border: none; color: white;
+  padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;
+}
+.container { max-width: 700px; margin: 0 auto; padding: 20px; }
+.card {
+  background: var(--white); border-radius: var(--radius);
+  padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow-sm);
+}
+.card h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.add-form { display: flex; gap: 8px; margin-bottom: 16px; }
+.add-form input {
+  flex: 1; padding: 10px 14px; border: 2px solid var(--primary-surface);
+  border-radius: var(--radius-sm); font-size: 0.9rem;
+}
+.add-form input:focus { outline: none; border-color: var(--primary); }
+.add-btn {
+  padding: 10px 20px; background: var(--primary); color: white; border: none;
+  border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+}
+.email-list { list-style: none; }
+.email-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; border-bottom: 1px solid #F3F4F6;
+}
+.email-item:last-child { border-bottom: none; }
+.email-item .email-text { font-size: 0.9rem; }
+.email-item .email-date { font-size: 0.7rem; color: var(--text-secondary); }
+.remove-btn {
+  background: #FEE2E2; color: var(--accent-red); border: none;
+  padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;
+  font-weight: 600; cursor: pointer;
+}
+.user-card {
+  background: #F9FAFB; border-radius: var(--radius-sm);
+  padding: 16px; margin-bottom: 12px;
+}
+.user-card .user-email { font-size: 0.9rem; font-weight: 700; }
+.user-card .user-meta { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
+.user-progress { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+.user-progress .up-item {
+  background: var(--white); padding: 6px 12px; border-radius: 8px;
+  font-size: 0.75rem; font-weight: 600;
+}
+.up-item.completed { color: #059669; background: #D1FAE5; }
+.up-item.in_progress { color: #D97706; background: #FEF3C7; }
+.up-item.not_started { color: var(--text-secondary); background: #F3F4F6; }
+.empty { text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem; }
+/* ログイン画面 */
+.login-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d2b55 100%);
+  display: flex; justify-content: center; align-items: center; z-index: 999;
+}
+.login-box {
+  background: var(--white); border-radius: var(--radius); padding: 40px 32px;
+  max-width: 400px; width: 90%; text-align: center;
+}
+.login-box h2 { font-size: 1.2rem; margin-bottom: 4px; }
+.login-box p { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 20px; }
+.login-box input {
+  width: 100%; padding: 12px 16px; border: 2px solid var(--primary-surface);
+  border-radius: var(--radius-sm); font-size: 0.9rem; margin-bottom: 12px;
+}
+.login-box input:focus { outline: none; border-color: var(--primary); }
+.login-box button {
+  width: 100%; padding: 14px; background: #1a1a2e; color: white; border: none;
+  border-radius: var(--radius-sm); font-size: 0.95rem; font-weight: 700; cursor: pointer;
+}
+.login-error { color: var(--accent-red); font-size: 0.8rem; margin-top: 8px; }
+.back-link { display: inline-block; margin-top: 16px; color: var(--primary); font-size: 0.85rem; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- 管理者ログイン画面 -->
+<div id="admin-login" class="login-overlay">
+  <div class="login-box">
+    <h2>🔒 管理者ページ</h2>
+    <p>管理者アカウントでログインしてください</p>
+    <input type="email" id="admin-email" placeholder="メールアドレス">
+    <input type="password" id="admin-password" placeholder="パスワード">
+    <button onclick="adminLogin()">ログイン</button>
+    <div id="admin-login-error" class="login-error"></div>
+    <a href="index.html" class="back-link">← アプリに戻る</a>
+  </div>
+</div>
+
+<!-- 管理画面本体 -->
+<div id="admin-app" style="display:none;">
+  <header class="admin-header" style="position:relative;">
+    <h1>🔒 AI学習ラボ 管理者ページ</h1>
+    <p id="admin-user-email"></p>
+    <button class="logout-btn" onclick="adminLogout()">ログアウト</button>
+  </header>
+
+  <div class="container">
+    <!-- 許可メアド管理 -->
+    <div class="card">
+      <h2>📧 許可メールアドレス管理</h2>
+      <div class="add-form">
+        <input type="email" id="new-email" placeholder="追加するメールアドレス">
+        <button class="add-btn" onclick="addApprovedEmail()">追加</button>
+      </div>
+      <ul id="email-list" class="email-list">
+        <li class="empty">読み込み中...</li>
+      </ul>
+    </div>
+
+    <!-- ユーザー進捗一覧 -->
+    <div class="card">
+      <h2>👥 ユーザー学習進捗</h2>
+      <div id="user-list">
+        <div class="empty">読み込み中...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+// Firebase設定
+firebase.initializeApp({
+  apiKey: "AIzaSyAySFDsxJMzXAtM85dWuFlD4oGIttgbwUo",
+  authDomain: "ai-learning-lab-21b07.firebaseapp.com",
+  projectId: "ai-learning-lab-21b07",
+  storageBucket: "ai-learning-lab-21b07.firebasestorage.app",
+  messagingSenderId: "952216672186",
+  appId: "1:952216672186:web:33ac439e301e08fdb1ef83"
+});
+
+var auth = firebase.auth();
+var db = firebase.firestore();
+
+// 管理者メールアドレス
+var ADMIN_EMAIL = 'kokisuto494@gmail.com';
+
+// 管理者ログイン
+function adminLogin() {
+  var email = document.getElementById('admin-email').value.trim();
+  var password = document.getElementById('admin-password').value;
+  var errorEl = document.getElementById('admin-login-error');
+  errorEl.textContent = '';
+
+  if (!email || !password) { errorEl.textContent = 'メールアドレスとパスワードを入力してください'; return; }
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(function(cred) {
+      if (cred.user.email !== ADMIN_EMAIL) {
+        errorEl.textContent = '管理者権限がありません';
+        auth.signOut();
+        return;
+      }
+      showAdminPanel(cred.user);
+    })
+    .catch(function(err) {
+      if (err.code === 'auth/user-not-found') {
+        // 管理者アカウントが未作成の場合は新規作成
+        if (email === ADMIN_EMAIL) {
+          auth.createUserWithEmailAndPassword(email, password)
+            .then(function(cred) {
+              // 管理者を許可メアドにも追加
+              db.collection('approved_emails').add({
+                email: ADMIN_EMAIL,
+                approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+              });
+              showAdminPanel(cred.user);
+            })
+            .catch(function(e) { errorEl.textContent = e.message; });
+        } else {
+          errorEl.textContent = '管理者権限がありません';
+        }
+      } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        errorEl.textContent = 'パスワードが間違っています';
+      } else {
+        errorEl.textContent = err.message;
+      }
+    });
+}
+
+// 管理画面表示
+function showAdminPanel(user) {
+  document.getElementById('admin-login').style.display = 'none';
+  document.getElementById('admin-app').style.display = 'block';
+  document.getElementById('admin-user-email').textContent = user.email;
+  loadApprovedEmails();
+  loadAllUsers();
+}
+
+function adminLogout() {
+  auth.signOut().then(function() { location.reload(); });
+}
+
+// 認証状態チェック
+auth.onAuthStateChanged(function(user) {
+  if (user && user.email === ADMIN_EMAIL) {
+    showAdminPanel(user);
+  }
+});
+
+// ===== 許可メアド管理 =====
+function loadApprovedEmails() {
+  db.collection('approved_emails').orderBy('approvedAt', 'desc').get()
+    .then(function(snapshot) {
+      var list = document.getElementById('email-list');
+      if (snapshot.empty) {
+        list.innerHTML = '<li class="empty">許可されたメールアドレスはありません</li>';
+        return;
+      }
+      list.innerHTML = '';
+      snapshot.forEach(function(doc) {
+        var data = doc.data();
+        var date = data.approvedAt ? data.approvedAt.toDate().toLocaleDateString('ja-JP') : '不明';
+        var li = document.createElement('li');
+        li.className = 'email-item';
+        li.innerHTML = '<div><div class="email-text">' + escapeHtml(data.email) + '</div><div class="email-date">追加日: ' + date + '</div></div>' +
+          (data.email !== ADMIN_EMAIL ? '<button class="remove-btn" onclick="removeEmail(\'' + doc.id + '\')">削除</button>' : '<span style="font-size:0.7rem;color:var(--primary);font-weight:600;">管理者</span>');
+        list.appendChild(li);
+      });
+    });
+}
+
+function addApprovedEmail() {
+  var input = document.getElementById('new-email');
+  var email = input.value.trim().toLowerCase();
+  if (!email || !email.includes('@')) { alert('正しいメールアドレスを入力してください'); return; }
+
+  // 重複チェック
+  db.collection('approved_emails').where('email', '==', email).get()
+    .then(function(snapshot) {
+      if (!snapshot.empty) { alert('このメールアドレスは既に登録されています'); return; }
+      return db.collection('approved_emails').add({
+        email: email,
+        approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    })
+    .then(function(ref) {
+      if (ref) {
+        input.value = '';
+        loadApprovedEmails();
+      }
+    })
+    .catch(function(err) { alert('エラー: ' + err.message); });
+}
+
+function removeEmail(docId) {
+  if (!confirm('このメールアドレスの許可を取り消しますか？')) return;
+  db.collection('approved_emails').doc(docId).delete()
+    .then(function() { loadApprovedEmails(); })
+    .catch(function(err) { alert('エラー: ' + err.message); });
+}
+
+// ===== ユーザー進捗一覧 =====
+function loadAllUsers() {
+  db.collection('users').get()
+    .then(function(snapshot) {
+      var container = document.getElementById('user-list');
+      if (snapshot.empty) {
+        container.innerHTML = '<div class="empty">まだユーザーがいません</div>';
+        return;
+      }
+      container.innerHTML = '';
+      snapshot.forEach(function(doc) {
+        var data = doc.data();
+        var statuses = data.chapterStatuses || {};
+        var customCount = (data.customChapters || []).length;
+        var lastLogin = data.lastLogin ? data.lastLogin.toDate().toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '未ログイン';
+
+        // 進捗集計
+        var completed = 0, inProgress = 0, notStarted = 0;
+        Object.values(statuses).forEach(function(s) {
+          if (s === 'completed') completed++;
+          else if (s === 'in_progress') inProgress++;
+          else notStarted++;
+        });
+
+        var card = document.createElement('div');
+        card.className = 'user-card';
+        card.innerHTML =
+          '<div class="user-email">' + escapeHtml(data.email || '不明') + '</div>' +
+          '<div class="user-meta">最終ログイン: ' + lastLogin + ' | カスタムチャプター: ' + customCount + '件</div>' +
+          '<div class="user-progress">' +
+            '<span class="up-item completed">完了 ' + completed + '</span>' +
+            '<span class="up-item in_progress">学習中 ' + inProgress + '</span>' +
+            '<span class="up-item not_started">未学習 ' + notStarted + '</span>' +
+          '</div>';
+        container.appendChild(card);
+      });
+    })
+    .catch(function(err) {
+      document.getElementById('user-list').innerHTML = '<div class="empty">読み込みエラー: ' + err.message + '</div>';
+    });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>

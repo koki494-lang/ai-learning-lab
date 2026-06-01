@@ -43,6 +43,36 @@ body {
 }
 a { color: var(--primary); text-decoration: none; }
 
+/* ===== ログイン画面 ===== */
+.auth-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, var(--primary) 0%, #2d2b55 100%);
+  display: flex; justify-content: center; align-items: center; z-index: 999;
+}
+.auth-box {
+  background: var(--white); border-radius: var(--radius); padding: 36px 28px;
+  max-width: 400px; width: 90%; text-align: center;
+}
+.auth-box .auth-logo { font-size: 2.5rem; margin-bottom: 8px; }
+.auth-box h2 { font-size: 1.2rem; margin-bottom: 4px; }
+.auth-box .auth-sub { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 20px; }
+.auth-box input {
+  width: 100%; padding: 12px 16px; border: 2px solid var(--primary-surface);
+  border-radius: var(--radius-sm); font-size: 0.9rem; margin-bottom: 10px;
+}
+.auth-box input:focus { outline: none; border-color: var(--primary); }
+.auth-btn {
+  width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white; border: none; border-radius: var(--radius-sm); font-size: 0.95rem;
+  font-weight: 700; cursor: pointer; margin-top: 4px;
+}
+.auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.auth-toggle {
+  margin-top: 16px; font-size: 0.8rem; color: var(--text-secondary);
+}
+.auth-toggle a { cursor: pointer; color: var(--primary); font-weight: 600; }
+.auth-error { color: var(--accent-red); font-size: 0.8rem; margin-top: 10px; min-height: 1.2em; }
+
 /* ===== ヘッダー ===== */
 .app-header {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
@@ -732,6 +762,18 @@ a { color: var(--primary); text-decoration: none; }
   transition: background 0.2s;
 }
 .danger-btn:active { background: #FECACA; }
+.logout-btn-mypage {
+  width: calc(100% - 40px);
+  margin: 0 20px 20px;
+  padding: 12px;
+  background: var(--primary-surface);
+  color: var(--primary-dark);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
 
 /* ===== ローディング ===== */
 .loading-overlay {
@@ -859,6 +901,25 @@ a { color: var(--primary); text-decoration: none; }
 </head>
 <body>
 
+<!-- ===== ログイン / 新規登録画面 ===== -->
+<div id="auth-screen" class="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">✨</div>
+    <h2>AI学習ラボ</h2>
+    <p class="auth-sub" id="auth-subtitle">アカウントにログインしてください</p>
+    <input type="email" id="auth-email" placeholder="メールアドレス">
+    <input type="password" id="auth-password" placeholder="パスワード">
+    <button class="auth-btn" id="auth-btn" onclick="handleAuth()">ログイン</button>
+    <div class="auth-toggle" id="auth-toggle">
+      アカウントがない方は <a onclick="toggleAuthMode()">新規登録</a>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+  </div>
+</div>
+
+<!-- ===== メインアプリ（ログイン後に表示） ===== -->
+<div id="app-main" style="display:none;">
+
 <!-- ===== ヘッダー ===== -->
 <header class="app-header">
   <h1>✨ AI学習ラボ</h1>
@@ -954,8 +1015,8 @@ a { color: var(--primary); text-decoration: none; }
 <div id="screen-mypage" class="screen">
   <div class="profile-card">
     <div class="profile-avatar">🎓</div>
-    <h3>AI学習者</h3>
-    <p>コツコツ学んで差をつけよう！</p>
+    <h3 id="profile-name">AI学習者</h3>
+    <p id="profile-email">読み込み中...</p>
   </div>
   <div class="stats-grid">
     <div class="stat-card">
@@ -989,14 +1050,8 @@ a { color: var(--primary); text-decoration: none; }
       <span class="si-label">学習データをエクスポート</span>
       <span class="si-arrow">→</span>
     </div>
-    <div class="settings-item" onclick="importData()">
-      <span class="si-icon">📥</span>
-      <span class="si-label">学習データをインポート</span>
-      <span class="si-arrow">→</span>
-    </div>
   </div>
-  <button class="danger-btn" onclick="resetAllData()">🗑 全データをリセット</button>
-  <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+  <button class="logout-btn-mypage" onclick="handleLogout()">🚪 ログアウト</button>
 </div>
 
 <!-- ===== ボトムナビゲーション（4タブ） ===== -->
@@ -1014,6 +1069,8 @@ a { color: var(--primary); text-decoration: none; }
     <span class="nav-icon">👤</span><span>マイページ</span>
   </button>
 </nav>
+
+</div><!-- /app-main -->
 
 <!-- ===== ローディングオーバーレイ ===== -->
 <div id="loading-overlay" class="loading-overlay">
@@ -1044,11 +1101,32 @@ a { color: var(--primary); text-decoration: none; }
 <!-- ===== トースト ===== -->
 <div id="toast" class="toast"></div>
 
+<!-- ===== Firebase SDK ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <script>
+// ===== Firebase初期化 =====
+firebase.initializeApp({
+  apiKey: "AIzaSyAySFDsxJMzXAtM85dWuFlD4oGIttgbwUo",
+  authDomain: "ai-learning-lab-21b07.firebaseapp.com",
+  projectId: "ai-learning-lab-21b07",
+  storageBucket: "ai-learning-lab-21b07.firebasestorage.app",
+  messagingSenderId: "952216672186",
+  appId: "1:952216672186:web:33ac439e301e08fdb1ef83"
+});
+
+var auth = firebase.auth();
+var db = firebase.firestore();
+
 // ===== 定数 =====
-var STORAGE_KEY = 'ai_learning_chapters';
 var API_KEY_STORAGE = 'ai_learning_api_key';
 var MODEL = 'claude-sonnet-4-20250514';
+
+// ===== 認証状態 =====
+var currentUser = null;
+var isRegisterMode = false;
 
 // ===== 初期6チャプター（コンテンツ埋め込み済み） =====
 var DEFAULT_CHAPTERS = [
@@ -1057,7 +1135,6 @@ var DEFAULT_CHAPTERS = [
     title: 'ChatGPTの基本的な使い方',
     icon: '🤖',
     color: 'purple',
-    status: 'not_started',
     estimatedMinutes: 15,
     content: {
       hook: 'レポート書くとき「誰か代わりに調べてくれないかな…」って思ったこと、ない？実はそれ、もうAIにお願いできる時代なんです。',
@@ -1080,7 +1157,6 @@ var DEFAULT_CHAPTERS = [
     title: 'プロンプトの書き方（指示の出し方）',
     icon: '✍️',
     color: 'blue',
-    status: 'not_started',
     estimatedMinutes: 20,
     content: {
       hook: '同じAIを使ってるのに、なんかあの子の方がいい回答もらってる気がする…。その差、実は「質問の仕方」にあるんです。',
@@ -1103,7 +1179,6 @@ var DEFAULT_CHAPTERS = [
     title: '画像生成AI（Midjourney等）',
     icon: '🎨',
     color: 'pink',
-    status: 'not_started',
     estimatedMinutes: 15,
     content: {
       hook: 'インスタで見かけたあのおしゃれな画像、実はAIが作ったものかも？テキストを入力するだけで画像が生成できる時代、知らないのはもったいない！',
@@ -1126,7 +1201,6 @@ var DEFAULT_CHAPTERS = [
     title: 'AIで副業・マネタイズする方法',
     icon: '💰',
     color: 'green',
-    status: 'not_started',
     estimatedMinutes: 25,
     content: {
       hook: '「AIで稼げるらしいけど、具体的に何すればいいの？」って思ってる人、多いよね。怪しい情報じゃなく、大学生が現実的にできる方法を正直に教えます。',
@@ -1149,7 +1223,6 @@ var DEFAULT_CHAPTERS = [
     title: '就活・レポートへのAI活用',
     icon: '📝',
     color: 'orange',
-    status: 'not_started',
     estimatedMinutes: 20,
     content: {
       hook: 'ES（エントリーシート）って書くの大変だし、レポートの締切はいつも迫ってくるし…。AIをうまく使えば、質を上げながら時間を節約できるんです。',
@@ -1172,7 +1245,6 @@ var DEFAULT_CHAPTERS = [
     title: 'Claude / Gemini など複数AIの使い分け',
     icon: '🔄',
     color: 'teal',
-    status: 'not_started',
     estimatedMinutes: 15,
     content: {
       hook: 'ChatGPTだけ使ってるのはもったいない！実はAIにもそれぞれ「個性」があって、場面によって使い分けると効率が段違いなんです。',
@@ -1201,14 +1273,131 @@ var currentScreen = 'home';
 var previousScreen = 'home';
 var currentLearnFilter = 'all';
 
-// ===== 初期化 =====
-function init() {
-  loadChapters();
-  setupNavigation();
-  setupLearningTabs();
-  updateWelcomeGreeting();
-  renderHome();
-  updateApiStatus();
+// ===== 認証処理 =====
+function toggleAuthMode() {
+  isRegisterMode = !isRegisterMode;
+  var btn = document.getElementById('auth-btn');
+  var toggle = document.getElementById('auth-toggle');
+  var sub = document.getElementById('auth-subtitle');
+  document.getElementById('auth-error').textContent = '';
+  if (isRegisterMode) {
+    btn.textContent = '新規登録';
+    toggle.innerHTML = 'アカウントをお持ちの方は <a onclick="toggleAuthMode()">ログイン</a>';
+    sub.textContent = '管理者から許可されたメールアドレスで登録できます';
+  } else {
+    btn.textContent = 'ログイン';
+    toggle.innerHTML = 'アカウントがない方は <a onclick="toggleAuthMode()">新規登録</a>';
+    sub.textContent = 'アカウントにログインしてください';
+  }
+}
+
+function handleAuth() {
+  var email = document.getElementById('auth-email').value.trim().toLowerCase();
+  var password = document.getElementById('auth-password').value;
+  var errorEl = document.getElementById('auth-error');
+  var btn = document.getElementById('auth-btn');
+  errorEl.textContent = '';
+
+  if (!email || !password) { errorEl.textContent = 'メールアドレスとパスワードを入力してください'; return; }
+  if (password.length < 6) { errorEl.textContent = 'パスワードは6文字以上にしてください'; return; }
+
+  btn.disabled = true;
+
+  if (isRegisterMode) {
+    // 新規登録：まず許可メアドかチェック
+    db.collection('approved_emails').where('email', '==', email).get()
+      .then(function(snapshot) {
+        if (snapshot.empty) {
+          errorEl.textContent = 'このメールアドレスは許可されていません。管理者にお問い合わせください。';
+          btn.disabled = false;
+          return Promise.reject('not_approved');
+        }
+        return auth.createUserWithEmailAndPassword(email, password);
+      })
+      .then(function(cred) {
+        if (!cred) return;
+        // Firestoreにユーザードキュメント作成
+        return db.collection('users').doc(cred.user.uid).set({
+          email: email,
+          chapterStatuses: {},
+          customChapters: [],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        if (err === 'not_approved') return;
+        if (err.code === 'auth/email-already-in-use') errorEl.textContent = 'このメールアドレスは既に登録されています';
+        else if (err.code === 'auth/invalid-email') errorEl.textContent = 'メールアドレスの形式が正しくありません';
+        else if (err.code === 'auth/weak-password') errorEl.textContent = 'パスワードが弱すぎます（6文字以上）';
+        else if (err.message) errorEl.textContent = err.message;
+      });
+  } else {
+    // ログイン
+    auth.signInWithEmailAndPassword(email, password)
+      .then(function(cred) {
+        // lastLoginを更新
+        return db.collection('users').doc(cred.user.uid).update({
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(function() {
+          // ドキュメントがない場合は作成
+          return db.collection('users').doc(cred.user.uid).set({
+            email: email,
+            chapterStatuses: {},
+            customChapters: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        });
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        if (err.code === 'auth/user-not-found') errorEl.textContent = 'アカウントが見つかりません。新規登録してください。';
+        else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') errorEl.textContent = 'メールアドレスまたはパスワードが間違っています';
+        else if (err.code === 'auth/invalid-email') errorEl.textContent = 'メールアドレスの形式が正しくありません';
+        else if (err.message) errorEl.textContent = err.message;
+      });
+  }
+}
+
+function handleLogout() {
+  if (!confirm('ログアウトしますか？')) return;
+  auth.signOut();
+}
+
+// ===== Firebase認証状態監視 =====
+auth.onAuthStateChanged(function(user) {
+  if (user) {
+    currentUser = user;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-main').style.display = 'block';
+    document.getElementById('auth-btn').disabled = false;
+    initApp();
+  } else {
+    currentUser = null;
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app-main').style.display = 'none';
+  }
+});
+
+// ===== アプリ初期化（ログイン後） =====
+function initApp() {
+  loadUserData().then(function() {
+    setupNavigation();
+    setupLearningTabs();
+    updateWelcomeGreeting();
+    renderHome();
+    updateApiStatus();
+    updateProfileSection();
+  });
+}
+
+function updateProfileSection() {
+  if (currentUser) {
+    document.getElementById('profile-email').textContent = currentUser.email;
+    document.getElementById('profile-name').textContent = 'AI学習者';
+  }
 }
 
 function updateWelcomeGreeting() {
@@ -1220,42 +1409,61 @@ function updateWelcomeGreeting() {
   else el.textContent = '今日もお疲れさま！AIを学ぼう！';
 }
 
-// ===== localStorage操作 =====
-function loadChapters() {
-  try {
-    var stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      chapters = JSON.parse(stored);
-    }
-  } catch (e) {
-    chapters = [];
-  }
-  // 初回アクセス時：全デフォルトチャプターをセット
-  if (chapters.length === 0) {
-    chapters = DEFAULT_CHAPTERS.map(function(ch) {
-      return JSON.parse(JSON.stringify(ch));
+// ===== Firestore データ読み書き =====
+function loadUserData() {
+  if (!currentUser) return Promise.resolve();
+  return db.collection('users').doc(currentUser.uid).get()
+    .then(function(doc) {
+      var data = doc.exists ? doc.data() : { chapterStatuses: {}, customChapters: [] };
+      var statuses = data.chapterStatuses || {};
+      var customChapters = data.customChapters || [];
+
+      // DEFAULT_CHAPTERSをベースにchapters配列を構築
+      chapters = DEFAULT_CHAPTERS.map(function(def) {
+        var ch = JSON.parse(JSON.stringify(def));
+        ch.status = statuses[ch.id] || 'not_started';
+        return ch;
+      });
+
+      // カスタムチャプターを追加
+      customChapters.forEach(function(custom) {
+        custom.status = statuses[custom.id] || 'not_started';
+        chapters.push(custom);
+      });
+    })
+    .catch(function(err) {
+      console.error('データ読み込みエラー:', err);
+      // フォールバック：デフォルトチャプターのみ表示
+      chapters = DEFAULT_CHAPTERS.map(function(def) {
+        var ch = JSON.parse(JSON.stringify(def));
+        ch.status = 'not_started';
+        return ch;
+      });
     });
-    saveChapters();
-  } else {
-    // 既存ユーザー向け：新しいデフォルトチャプターがあれば自動追加
-    var added = false;
-    DEFAULT_CHAPTERS.forEach(function(def) {
-      var exists = chapters.some(function(c) { return c.id === def.id; });
-      if (!exists) {
-        chapters.push(JSON.parse(JSON.stringify(def)));
-        added = true;
-      }
-    });
-    if (added) saveChapters();
-  }
 }
 
-function saveChapters() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(chapters));
-  } catch (e) {
+function saveUserData() {
+  if (!currentUser) return Promise.resolve();
+  // chapterStatuses: 全チャプターのステータスをobjectで保存
+  var statuses = {};
+  chapters.forEach(function(ch) { statuses[ch.id] = ch.status; });
+
+  // customChapters: カスタムチャプターのみ保存（コンテンツ含む）
+  var customs = chapters.filter(function(ch) { return ch.id.startsWith('chapter_custom_'); })
+    .map(function(ch) {
+      return { id: ch.id, title: ch.title, icon: ch.icon, color: ch.color, estimatedMinutes: ch.estimatedMinutes, content: ch.content };
+    });
+
+  return db.collection('users').doc(currentUser.uid).set({
+    email: currentUser.email,
+    chapterStatuses: statuses,
+    customChapters: customs,
+    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true })
+  .catch(function(err) {
+    console.error('データ保存エラー:', err);
     showToast('⚠️ データの保存に失敗しました');
-  }
+  });
 }
 
 function getApiKey() {
@@ -1367,7 +1575,7 @@ function renderLearnList() {
 function openChapter(chapterId) {
   var chapter = chapters.find(function(c) { return c.id === chapterId; });
   if (!chapter) return;
-  if (chapter.status === 'not_started') { chapter.status = 'in_progress'; saveChapters(); }
+  if (chapter.status === 'not_started') { chapter.status = 'in_progress'; saveUserData(); }
   document.getElementById('detail-title').textContent = chapter.icon + ' ' + chapter.title;
   var statusText = chapter.status === 'completed' ? '✅ 完了済み' : '📖 学習中';
   document.getElementById('detail-meta').textContent = '約' + chapter.estimatedMinutes + '分 • ' + statusText;
@@ -1395,7 +1603,7 @@ function toggleComplete(chapterId) {
   if (!chapter) return;
   if (chapter.status === 'completed') { chapter.status = 'in_progress'; showToast('完了を取り消しました'); }
   else { chapter.status = 'completed'; showToast('🎉 チャプター完了！おめでとう！'); }
-  saveChapters();
+  saveUserData();
   openChapter(chapterId);
 }
 
@@ -1407,7 +1615,7 @@ async function regenerateChapter(chapterId) {
   showLoading('「' + chapter.title + '」を生成中...');
   var content = await callAnthropicAPI(apiKey, chapter.title);
   hideLoading();
-  if (content) { chapter.content = content; saveChapters(); openChapter(chapterId); showToast('✨ コンテンツを生成しました'); }
+  if (content) { chapter.content = content; saveUserData(); openChapter(chapterId); showToast('✨ コンテンツを生成しました'); }
 }
 
 // ===== 探す画面 =====
@@ -1428,6 +1636,7 @@ function renderMyPage() {
   document.getElementById('stat-completed').textContent = completed;
   document.getElementById('stat-progress').textContent = pct + '%';
   updateApiStatus();
+  updateProfileSection();
 }
 
 function updateApiStatus() {
@@ -1502,7 +1711,7 @@ async function generateChapter() {
     var colors = ['purple','blue','pink','green','orange','teal'];
     var id = 'chapter_custom_' + Date.now();
     chapters.push({ id: id, title: theme, icon: icons[Math.floor(Math.random()*icons.length)], color: colors[Math.floor(Math.random()*colors.length)], status: 'not_started', estimatedMinutes: 15, content: content });
-    saveChapters();
+    saveUserData();
     document.getElementById('generate-theme').value = '';
     document.getElementById('generate-note').value = '';
     showToast('✨ 新しいチャプターを作成しました！');
@@ -1511,7 +1720,7 @@ async function generateChapter() {
   }
 }
 
-// ===== データ管理 =====
+// ===== データエクスポート =====
 function exportData() {
   if (chapters.length === 0) { showToast('⚠️ エクスポートするデータがありません'); return; }
   var blob = new Blob([JSON.stringify(chapters, null, 2)], { type: 'application/json' });
@@ -1519,35 +1728,6 @@ function exportData() {
   a.download = 'ai_learning_data_' + new Date().toISOString().slice(0,10) + '.json';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   showToast('📤 データをエクスポートしました');
-}
-
-function importData() { document.getElementById('import-file').click(); }
-
-function handleImport(event) {
-  var file = event.target.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      var imported = JSON.parse(e.target.result);
-      if (!Array.isArray(imported)) throw new Error('不正な形式');
-      if (!confirm(imported.length + '件のチャプターをインポートします。現在のデータは上書きされます。')) return;
-      chapters = imported; saveChapters(); renderHome(); renderMyPage();
-      showToast('📥 ' + imported.length + '件をインポートしました');
-    } catch (err) { showToast('❌ インポート失敗: ' + err.message); }
-  };
-  reader.readAsText(file);
-  event.target.value = '';
-}
-
-function resetAllData() {
-  if (chapters.length === 0) { showToast('リセットするデータがありません'); return; }
-  if (!confirm('全データをリセットしますか？（初期6章は再セットされます）')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  chapters = DEFAULT_CHAPTERS.map(function(ch) { return JSON.parse(JSON.stringify(ch)); });
-  saveChapters();
-  renderHome(); renderMyPage();
-  showToast('🔄 データをリセットしました（初期6章を再セット）');
 }
 
 // ===== UI ヘルパー =====
@@ -1564,9 +1744,6 @@ function showToast(message) {
   toast._timeout = setTimeout(function() { toast.classList.remove('show'); }, 2800);
 }
 function escapeHtml(str) { if (!str) return ''; var div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
-
-// ===== 起動 =====
-document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
