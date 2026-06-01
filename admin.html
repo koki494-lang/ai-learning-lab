@@ -110,6 +110,7 @@ body {
     <input type="password" id="admin-password" placeholder="パスワード">
     <button onclick="adminLogin()">ログイン</button>
     <div id="admin-login-error" class="login-error"></div>
+    <a onclick="resetPassword()" class="back-link" style="cursor:pointer;">パスワードを忘れた方はこちら</a>
     <a href="index.html" class="back-link">← アプリに戻る</a>
   </div>
 </div>
@@ -221,6 +222,14 @@ function showAdminPanel(user) {
 
 function adminLogout() {
   auth.signOut().then(function() { location.reload(); });
+}
+
+function resetPassword() {
+  var email = document.getElementById('admin-email').value.trim();
+  if (!email) { document.getElementById('admin-login-error').textContent = 'メールアドレスを入力してからリセットを押してください'; return; }
+  auth.sendPasswordResetEmail(email)
+    .then(function() { alert('パスワードリセットメールを送信しました。メールを確認してください。'); })
+    .catch(function(err) { document.getElementById('admin-login-error').textContent = 'エラー: ' + err.message; });
 }
 
 // 認証状態チェック
