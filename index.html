@@ -856,6 +856,88 @@ a { color: var(--primary); text-decoration: none; }
   margin-top: 12px;
 }
 
+/* ===== コースカード ===== */
+.course-list { display: flex; flex-direction: column; gap: 16px; }
+.course-card {
+  border-radius: var(--radius);
+  padding: 24px;
+  color: white;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-md);
+}
+.course-card:active { transform: scale(0.98); }
+.course-card::before {
+  content: '';
+  position: absolute; top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+}
+.course-card::after {
+  content: '';
+  position: absolute; bottom: -20px; left: -20px;
+  width: 80px; height: 80px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+}
+.course-card.purple { background: linear-gradient(135deg, #7F77DD 0%, #5A50C7 100%); }
+.course-card.blue { background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%); }
+.course-card.pink { background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%); }
+.course-card.green { background: linear-gradient(135deg, #34D399 0%, #10B981 100%); }
+.course-card.orange { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); }
+.course-card.teal { background: linear-gradient(135deg, #2DD4BF 0%, #14B8A6 100%); }
+.course-card .course-icon { font-size: 2.2rem; margin-bottom: 8px; position: relative; }
+.course-card .course-title { font-size: 1.15rem; font-weight: 700; position: relative; }
+.course-card .course-desc { font-size: 0.8rem; opacity: 0.9; margin-top: 4px; position: relative; line-height: 1.5; }
+.course-card .course-progress-wrap {
+  margin-top: 16px; position: relative;
+}
+.course-card .course-progress-bar {
+  background: rgba(255,255,255,0.25);
+  border-radius: 8px; height: 8px; overflow: hidden;
+}
+.course-card .course-progress-fill {
+  background: white; height: 100%; border-radius: 8px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.course-card .course-progress-text {
+  font-size: 0.75rem; opacity: 0.85; margin-top: 6px; text-align: right;
+}
+
+.course-detail-hero {
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.course-detail-hero::before {
+  content: '';
+  position: absolute; top: -30px; right: -30px;
+  width: 100px; height: 100px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+}
+.course-detail-hero .cdh-icon { font-size: 3rem; margin-bottom: 8px; position: relative; }
+.course-detail-hero .cdh-desc { font-size: 0.9rem; opacity: 0.95; line-height: 1.7; position: relative; }
+.course-detail-hero .cdh-progress { margin-top: 16px; position: relative; }
+.course-detail-hero .cdh-progress-bar {
+  background: rgba(255,255,255,0.25);
+  border-radius: 8px; height: 10px; overflow: hidden; margin-bottom: 6px;
+}
+.course-detail-hero .cdh-progress-fill {
+  background: white; height: 100%; border-radius: 8px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.course-detail-hero .cdh-progress-text {
+  font-size: 0.8rem; opacity: 0.9;
+}
+
 /* ===== トースト ===== */
 .toast {
   position: fixed;
@@ -947,8 +1029,27 @@ a { color: var(--primary); text-decoration: none; }
 
   <div id="recommend-area"></div>
 
-  <h2 class="section-title">📚 チャプター一覧</h2>
-  <div id="chapter-list" class="chapter-list"></div>
+  <h2 class="section-title">📚 コース一覧</h2>
+  <div id="course-list" class="course-list"></div>
+
+  <div id="custom-chapters-area" style="display:none;">
+    <h2 class="section-title" style="margin-top:24px;">🧪 マイチャプター</h2>
+    <div id="custom-chapter-list" class="chapter-list"></div>
+  </div>
+</div>
+
+<!-- ===== コース詳細画面 ===== -->
+<div id="screen-course" class="screen">
+  <div class="detail-header">
+    <button class="back-btn" onclick="goBackFromCourse()">←</button>
+    <div class="detail-title-area">
+      <div id="course-detail-title" class="detail-title"></div>
+      <div id="course-detail-meta" class="detail-meta"></div>
+    </div>
+  </div>
+  <div id="course-detail-hero"></div>
+  <h2 class="section-title">📖 チャプター一覧</h2>
+  <div id="course-chapter-list" class="chapter-list"></div>
 </div>
 
 <!-- ===== 学習画面 ===== -->
@@ -1267,11 +1368,24 @@ var DEFAULT_CHAPTERS = [
 // AIコンテンツ生成用システムプロンプト
 var SYSTEM_PROMPT = 'あなたは大学生向けのAI活用教材を作るライターです。\n以下のルールで記事を書いてください。\n\n【トーン】\n- 「ちょっと先を行くデキる先輩」が教えてくれる感じ\n- カジュアルだけど知識は本物・実践的\n- 難しい内容には必ず例え話・具体例を入れる\n- 章の冒頭は共感できる一言から始める\n  例：「レポート、ChatGPTに手伝ってもらいたいって思ったことない？」\n\n【構成】（必ずこの順番で）\n1. つかみの一言（共感・問いかけ）\n2. この章で何ができるようになるか（箇条書き3つ）\n3. 本文解説（見出しを使って読みやすく。4つ以上のセクションに分けて詳しく書くこと）\n4. ポイントまとめ（3つ）\n5. 実践ワーク（今すぐ試せる課題を1つ）\n\n【NGルール】\n- 特定ツールを「これだけ使え」と断言しない\n- 「簡単に月100万稼げる」など誇大表現を使わない\n- 著作権・倫理的にグレーな使い方を推奨しない\n- 専門用語は初出時に必ず一言で説明する\n- ツールの料金・プランは具体的な数字を避け「無料プランあり」「有料プランで拡張可能」などの表現にする\n\n【出力形式】\n必ず以下のJSON形式のみを出力してください。JSON以外のテキスト（説明文やマークダウン記法など）は一切含めないでください。\n{\n  "hook": "つかみの一言",\n  "goals": ["できること1", "できること2", "できること3"],\n  "body": "本文解説のHTML（h4, p, ul, li, strong, blockquote, codeタグを使用可能）",\n  "points": ["ポイント1の説明文", "ポイント2の説明文", "ポイント3の説明文"],\n  "practiceWork": "実践ワークの内容（具体的な手順を含めること）"\n}';
 
+// ===== コース定義 =====
+var COURSES = [
+  {
+    id: 'course_ai_basics',
+    title: 'AI初歩コース',
+    icon: '🚀',
+    color: 'purple',
+    description: 'AIの基本をゼロから学ぶ入門コース。ChatGPTの使い方からプロンプト術、画像生成、副業活用まで。',
+    chapterIds: ['chapter_1', 'chapter_2', 'chapter_3', 'chapter_4', 'chapter_5', 'chapter_6']
+  }
+];
+
 // ===== 状態管理 =====
 var chapters = [];
 var currentScreen = 'home';
 var previousScreen = 'home';
 var currentLearnFilter = 'all';
+var currentCourseId = null;
 
 // ===== 認証処理 =====
 function toggleAuthMode() {
@@ -1480,27 +1594,37 @@ function setupNavigation() {
 }
 
 function switchScreen(screenId) {
-  if (currentScreen !== 'detail') previousScreen = currentScreen;
+  if (currentScreen !== 'detail' && currentScreen !== 'course') previousScreen = currentScreen;
   currentScreen = screenId;
   document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
   document.getElementById('screen-' + screenId).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
   var navItem = document.querySelector('.nav-item[data-screen="' + screenId + '"]');
   if (navItem) navItem.classList.add('active');
-  if (screenId === 'home') renderHome();
+  if (screenId === 'home') { renderHome(); document.querySelector('.nav-item[data-screen="home"]').classList.add('active'); }
   else if (screenId === 'learn') renderLearn();
   else if (screenId === 'explore') renderExplore();
   else if (screenId === 'mypage') renderMyPage();
+  else if (screenId === 'course') renderCourseDetail();
   window.scrollTo(0, 0);
 }
 
-function goBackFromDetail() { switchScreen(previousScreen); }
+function goBackFromDetail() {
+  if (currentCourseId) { switchScreen('course'); }
+  else { switchScreen(previousScreen); }
+}
+
+function goBackFromCourse() {
+  currentCourseId = null;
+  switchScreen('home');
+}
 
 // ===== ホーム画面 =====
 function renderHome() {
   renderProgress();
   renderRecommend();
-  renderChapterList();
+  renderCourseList();
+  renderCustomChaptersOnHome();
 }
 
 function renderProgress() {
@@ -1524,13 +1648,71 @@ function renderRecommend() {
   area.innerHTML = '<div class="recommend-card" onclick="openChapter(\'' + next.id + '\')"><div class="recommend-label">⭐ 今日のおすすめ</div><div class="recommend-title">' + next.icon + ' ' + next.title + '</div><div class="recommend-desc">約' + next.estimatedMinutes + '分で学べます</div></div>';
 }
 
-function renderChapterList() {
-  var list = document.getElementById('chapter-list');
-  if (chapters.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">チャプターがありません</div></div>';
-    return;
-  }
-  list.innerHTML = chapters.map(function(ch) { return buildChapterCard(ch); }).join('');
+// ===== コース一覧 =====
+function renderCourseList() {
+  var list = document.getElementById('course-list');
+  list.innerHTML = COURSES.map(function(course) {
+    var courseChapters = getCourseChapters(course.id);
+    var total = courseChapters.length;
+    var completed = courseChapters.filter(function(c) { return c.status === 'completed'; }).length;
+    var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return '<div class="course-card ' + course.color + '" onclick="openCourse(\'' + course.id + '\')">' +
+      '<div class="course-icon">' + course.icon + '</div>' +
+      '<div class="course-title">' + escapeHtml(course.title) + '</div>' +
+      '<div class="course-desc">' + escapeHtml(course.description) + '</div>' +
+      '<div class="course-progress-wrap">' +
+        '<div class="course-progress-bar"><div class="course-progress-fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="course-progress-text">' + completed + ' / ' + total + ' チャプター完了</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderCustomChaptersOnHome() {
+  var customs = chapters.filter(function(c) { return c.id.startsWith('chapter_custom_'); });
+  var area = document.getElementById('custom-chapters-area');
+  var list = document.getElementById('custom-chapter-list');
+  if (customs.length === 0) { area.style.display = 'none'; return; }
+  area.style.display = 'block';
+  list.innerHTML = customs.map(function(ch) { return buildChapterCard(ch); }).join('');
+}
+
+function getCourseChapters(courseId) {
+  var course = COURSES.find(function(c) { return c.id === courseId; });
+  if (!course) return [];
+  return course.chapterIds.map(function(cid) {
+    return chapters.find(function(ch) { return ch.id === cid; });
+  }).filter(function(ch) { return !!ch; });
+}
+
+function openCourse(courseId) {
+  currentCourseId = courseId;
+  switchScreen('course');
+}
+
+function renderCourseDetail() {
+  var course = COURSES.find(function(c) { return c.id === currentCourseId; });
+  if (!course) return;
+  var courseChapters = getCourseChapters(course.id);
+  var total = courseChapters.length;
+  var completed = courseChapters.filter(function(c) { return c.status === 'completed'; }).length;
+  var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  document.getElementById('course-detail-title').textContent = course.icon + ' ' + course.title;
+  document.getElementById('course-detail-meta').textContent = total + 'チャプター • ' + completed + '完了';
+
+  document.getElementById('course-detail-hero').innerHTML =
+    '<div class="course-detail-hero course-card ' + course.color + '">' +
+      '<div class="cdh-icon">' + course.icon + '</div>' +
+      '<div class="cdh-desc">' + escapeHtml(course.description) + '</div>' +
+      '<div class="cdh-progress">' +
+        '<div class="cdh-progress-bar"><div class="cdh-progress-fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="cdh-progress-text">' + pct + '% 完了（' + completed + '/' + total + '）</div>' +
+      '</div>' +
+    '</div>';
+
+  document.getElementById('course-chapter-list').innerHTML =
+    courseChapters.map(function(ch) { return buildChapterCard(ch); }).join('');
 }
 
 function buildChapterCard(ch) {
