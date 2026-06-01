@@ -1018,9 +1018,7 @@ a { color: var(--primary); text-decoration: none; }
 <header class="app-header">
   <h1>✨ AI学習ラボ</h1>
   <div class="subtitle">大学生のためのAI活用ガイド</div>
-  <div class="header-actions">
-    <button class="header-btn" onclick="showApiKeyModal()" title="API設定">⚙️</button>
-  </div>
+  <div class="header-actions"></div>
 </header>
 
 <!-- ===== ホーム画面 ===== -->
@@ -1044,10 +1042,7 @@ a { color: var(--primary); text-decoration: none; }
   <h2 class="section-title">📚 コース一覧</h2>
   <div id="course-list" class="course-list"></div>
 
-  <div id="custom-chapters-area" style="display:none;">
-    <h2 class="section-title" style="margin-top:24px;">🧪 マイチャプター</h2>
-    <div id="custom-chapter-list" class="chapter-list"></div>
-  </div>
+
 </div>
 
 <!-- ===== コース詳細画面 ===== -->
@@ -1102,28 +1097,6 @@ a { color: var(--primary); text-decoration: none; }
   <div id="detail-content"></div>
 </div>
 
-<!-- ===== 探す画面（コンテンツ生成） ===== -->
-<div id="screen-explore" class="screen">
-  <h2 class="section-title">🔍 新しいチャプターを作る</h2>
-  <div class="generate-card">
-    <h3>✨ AIでチャプターを自動生成</h3>
-    <p>テーマを入力するだけで、AIが学習コンテンツを自動作成します。<br>※ 利用にはAnthropic APIキーが必要です（マイページで設定）</p>
-    <div class="input-group">
-      <label>チャプターのテーマ</label>
-      <input type="text" id="generate-theme" placeholder="例：AIでプレゼン資料を自動作成する方法">
-    </div>
-    <div class="input-group">
-      <label>補足（任意）</label>
-      <textarea id="generate-note" placeholder="特に取り上げてほしい内容があれば記入してください"></textarea>
-    </div>
-    <button class="generate-btn" id="generate-btn" onclick="generateChapter()">🤖 AIでチャプターを生成する</button>
-  </div>
-  <div id="generated-history">
-    <h3 class="section-title" style="margin-top:24px;">📝 生成したチャプター</h3>
-    <div id="generated-list" class="chapter-list"></div>
-  </div>
-</div>
-
 <!-- ===== マイページ ===== -->
 <div id="screen-mypage" class="screen">
   <div class="profile-card">
@@ -1146,37 +1119,16 @@ a { color: var(--primary); text-decoration: none; }
     </div>
   </div>
   <div class="api-key-section">
-    <h3>🔑 APIキー設定（新規チャプター生成用）</h3>
-    <p>「探す」タブで新しいチャプターをAI生成するにはAPIキーが必要です。初期6章は設定不要で読めます。</p>
-    <div class="api-key-input-wrap">
-      <input type="password" id="api-key-input" placeholder="sk-ant-api03-...">
-      <button class="api-key-save-btn" onclick="saveApiKey()">保存</button>
-    </div>
-    <div id="api-status" class="api-status disconnected">
-      <span>●</span> <span id="api-status-text">未設定</span>
-    </div>
-  </div>
-  <div class="settings-section">
-    <h3>データ管理</h3>
-    <div class="settings-item" onclick="exportData()">
-      <span class="si-icon">📤</span>
-      <span class="si-label">学習データをエクスポート</span>
-      <span class="si-arrow">→</span>
-    </div>
-  </div>
   <button class="logout-btn-mypage" onclick="handleLogout()">🚪 ログアウト</button>
 </div>
 
-<!-- ===== ボトムナビゲーション（4タブ） ===== -->
+<!-- ===== ボトムナビゲーション（3タブ） ===== -->
 <nav class="bottom-nav">
   <button class="nav-item active" data-screen="home">
     <span class="nav-icon">🏠</span><span>ホーム</span>
   </button>
   <button class="nav-item" data-screen="learn">
     <span class="nav-icon">📖</span><span>学習</span>
-  </button>
-  <button class="nav-item" data-screen="explore">
-    <span class="nav-icon">🔍</span><span>探す</span>
   </button>
   <button class="nav-item" data-screen="mypage">
     <span class="nav-icon">👤</span><span>マイページ</span>
@@ -1191,23 +1143,6 @@ a { color: var(--primary); text-decoration: none; }
     <div class="loading-spinner"></div>
     <div class="loading-text" id="loading-text">AIがコンテンツを生成中...</div>
     <div id="loading-sub" class="loading-sub">少々お待ちください</div>
-  </div>
-</div>
-
-<!-- ===== APIキー設定モーダル ===== -->
-<div id="api-modal" class="modal-overlay" onclick="closeModal(event)">
-  <div class="modal-content">
-    <h3>🔑 APIキー設定</h3>
-    <div class="input-group">
-      <label>Anthropic APIキー</label>
-      <input type="password" id="modal-api-key" placeholder="sk-ant-api03-...">
-    </div>
-    <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:12px;">
-      APIキーは <a href="https://console.anthropic.com/" target="_blank" rel="noopener">Anthropic Console</a> から取得できます。<br>
-      初期6章はAPIキー不要で読めます。新しいチャプター生成時のみ必要です。
-    </p>
-    <button class="generate-btn" onclick="saveApiKeyFromModal()">保存する</button>
-    <button class="modal-close" onclick="document.getElementById('api-modal').classList.remove('active')">閉じる</button>
   </div>
 </div>
 
@@ -1651,7 +1586,6 @@ function renderHome() {
   renderProgress();
   renderRecommend();
   renderCourseList();
-  renderCustomChaptersOnHome();
 }
 
 function renderProgress() {
