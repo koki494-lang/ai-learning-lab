@@ -1555,19 +1555,35 @@ function setupNavigation() {
   });
 }
 
+// 画面ごとの描画関数を登録（タブ追加時はここに足すだけ）
+var SCREEN_RENDERERS = {
+  home: function() { renderHome(); },
+  learn: function() { renderLearn(); },
+  mypage: function() { renderMyPage(); },
+  course: function() { renderCourseDetail(); }
+};
+
 function switchScreen(screenId) {
+  // 画面が存在するかチェック（タイポ防止）
+  var screenEl = document.getElementById('screen-' + screenId);
+  if (!screenEl) { console.error('[switchScreen] 画面が見つかりません: screen-' + screenId); return; }
+
+  // 戻り先を記録（detail/courseなどサブ画面は戻り先にしない）
   if (currentScreen !== 'detail' && currentScreen !== 'course') previousScreen = currentScreen;
   currentScreen = screenId;
+
+  // 画面切り替え
   document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
-  document.getElementById('screen-' + screenId).classList.add('active');
+  screenEl.classList.add('active');
+
+  // ナビハイライト
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
   var navItem = document.querySelector('.nav-item[data-screen="' + screenId + '"]');
   if (navItem) navItem.classList.add('active');
-  if (screenId === 'home') { renderHome(); document.querySelector('.nav-item[data-screen="home"]').classList.add('active'); }
-  else if (screenId === 'learn') renderLearn();
-  else if (screenId === 'explore') renderExplore();
-  else if (screenId === 'mypage') renderMyPage();
-  else if (screenId === 'course') renderCourseDetail();
+
+  // 画面ごとの描画
+  if (SCREEN_RENDERERS[screenId]) SCREEN_RENDERERS[screenId]();
+
   window.scrollTo(0, 0);
 }
 
