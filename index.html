@@ -1418,10 +1418,18 @@ function handleAuth() {
   btn.disabled = true;
 
   if (isRegisterMode) {
-    // 新規登録：まず許可メアドかチェック
-    db.collection('approved_emails').where('email', '==', email).get()
+    // 新規登録：まず許可メアドかチェック（全件取得して照合）
+    db.collection('approved_emails').get()
       .then(function(snapshot) {
-        if (snapshot.empty) {
+        var isApproved = false;
+        console.log('[登録] 入力メアド:', email);
+        console.log('[登録] approved_emails件数:', snapshot.size);
+        snapshot.forEach(function(doc) {
+          var d = doc.data();
+          console.log('[登録] 許可メアド:', d.email);
+          if (d.email && d.email.trim().toLowerCase() === email) { isApproved = true; }
+        });
+        if (!isApproved) {
           errorEl.textContent = 'このメールアドレスは許可されていません。管理者にお問い合わせください。';
           btn.disabled = false;
           return Promise.reject('not_approved');
