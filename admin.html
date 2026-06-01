@@ -97,6 +97,15 @@ body {
 }
 .login-error { color: var(--accent-red); font-size: 0.8rem; margin-top: 8px; }
 .back-link { display: inline-block; margin-top: 16px; color: var(--primary); font-size: 0.85rem; text-decoration: none; }
+.pw-wrap {
+  position: relative; width: 100%; margin-bottom: 12px;
+}
+.pw-wrap input { margin-bottom: 0; padding-right: 48px; }
+.pw-toggle {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; font-size: 1.2rem; cursor: pointer;
+  color: #9CA3AF; padding: 4px;
+}
 </style>
 </head>
 <body>
@@ -107,7 +116,10 @@ body {
     <h2>🔒 管理者ページ</h2>
     <p>管理者アカウントでログインしてください</p>
     <input type="email" id="admin-email" placeholder="メールアドレス">
-    <input type="password" id="admin-password" placeholder="パスワード">
+    <div class="pw-wrap">
+      <input type="password" id="admin-password" placeholder="パスワード">
+      <button type="button" class="pw-toggle" onclick="togglePw()">👁</button>
+    </div>
     <button onclick="adminLogin()">ログイン</button>
     <div id="admin-login-error" class="login-error"></div>
     <a onclick="resetPassword()" class="back-link" style="cursor:pointer;">パスワードを忘れた方はこちら</a>
@@ -167,6 +179,13 @@ var db = firebase.firestore();
 
 // 管理者メールアドレス
 var ADMIN_EMAIL = 'kokisuto494@gmail.com';
+
+function togglePw() {
+  var input = document.getElementById('admin-password');
+  var btn = input.parentElement.querySelector('.pw-toggle');
+  if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+  else { input.type = 'password'; btn.textContent = '👁'; }
+}
 
 // 管理者ログイン
 function adminLogin() {

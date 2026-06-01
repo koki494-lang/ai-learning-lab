@@ -72,6 +72,15 @@ a { color: var(--primary); text-decoration: none; }
 }
 .auth-toggle a { cursor: pointer; color: var(--primary); font-weight: 600; }
 .auth-error { color: var(--accent-red); font-size: 0.8rem; margin-top: 10px; min-height: 1.2em; }
+.pw-wrap {
+  position: relative; width: 100%; margin-bottom: 10px;
+}
+.pw-wrap input { margin-bottom: 0; padding-right: 48px; }
+.pw-toggle {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; font-size: 1.2rem; cursor: pointer;
+  color: var(--text-light); padding: 4px;
+}
 
 /* ===== ヘッダー ===== */
 .app-header {
@@ -990,7 +999,10 @@ a { color: var(--primary); text-decoration: none; }
     <h2>AI学習ラボ</h2>
     <p class="auth-sub" id="auth-subtitle">アカウントにログインしてください</p>
     <input type="email" id="auth-email" placeholder="メールアドレス">
-    <input type="password" id="auth-password" placeholder="パスワード">
+    <div class="pw-wrap">
+      <input type="password" id="auth-password" placeholder="パスワード">
+      <button type="button" class="pw-toggle" onclick="togglePasswordVisibility()">👁</button>
+    </div>
     <button class="auth-btn" id="auth-btn" onclick="handleAuth()">ログイン</button>
     <div class="auth-toggle" id="auth-toggle">
       アカウントがない方は <a onclick="toggleAuthMode()">新規登録</a>
@@ -1388,6 +1400,13 @@ var currentLearnFilter = 'all';
 var currentCourseId = null;
 
 // ===== 認証処理 =====
+function togglePasswordVisibility() {
+  var input = document.getElementById('auth-password');
+  var btn = input.parentElement.querySelector('.pw-toggle');
+  if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+  else { input.type = 'password'; btn.textContent = '👁'; }
+}
+
 function toggleAuthMode() {
   isRegisterMode = !isRegisterMode;
   var btn = document.getElementById('auth-btn');
