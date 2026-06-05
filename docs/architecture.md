@@ -105,6 +105,7 @@ Auth Domain: ai-learning-lab-21b07.firebaseapp.com
 | course_ai_basics | AI初歩コース | 6 (chapter_1〜6) |
 | course_mac_basics | はじめてのMacコース | 6 (chapter_mac_1〜6) |
 | course_win_basics | はじめてのWindowsコース | 6 (chapter_win_1〜6) |
+| course_mac_advanced | もっと使えるMacコース | 6 (chapter_mac2_1〜6) |
 
 ## 主要な処理フロー
 
