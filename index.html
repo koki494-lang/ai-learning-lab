@@ -1309,6 +1309,139 @@ var DEFAULT_CHAPTERS = [
       ],
       practiceWork: '同じ質問「大学生が今すぐ始められるAI活用法を3つ教えて」を、ChatGPT・Claude・Geminiの3つに聞いてみよう（無料で使えます）。回答の違いを比較して、「どのAIがどんな回答スタイルか」を自分の言葉でメモしてみてください。これが自分だけの「AI使い分けマニュアル」の第一歩になります！'
     }
+  },
+  // ===== はじめてのMacコース =====
+  {
+    id: 'chapter_mac_1',
+    title: 'Macを起動しよう',
+    icon: '⚡',
+    color: 'teal',
+    estimatedMinutes: 15,
+    content: {
+      hook: '新しいMacを目の前にして「で、まず何するの？」ってなったこと、ない？電源の入れ方くらい…と思いきや、意外と知らないこともあるんです。',
+      goals: [
+        'Macの電源を正しく入れて、ログイン画面からデスクトップまで進めるようになる',
+        'シャットダウン・再起動・スリープの違いを理解して、場面に応じて使い分けられるようになる',
+        'Touch IDやパスワード設定など、セキュリティの基本を押さえる'
+      ],
+      body: '<h4>電源ボタンはどこ？</h4><p>MacBookの場合、電源ボタンは<strong>キーボード右上のTouch IDボタン</strong>と兼用になっています。iMacの場合は<strong>本体背面の左下</strong>にあります。</p><p>ボタンを数秒押すと起動します。Appleロゴが画面に表示されたら、指を離してOKです。初めて起動する場合は初期設定画面が出てくるので、言語・Wi-Fi・Apple IDなどを順番に設定していきましょう。</p><h4>ログインとパスワード</h4><p>起動するとログイン画面が表示されます。初期設定時に決めたパスワードを入力してログインしましょう。</p><ul><li><strong>パスワード入力：</strong>キーボードでパスワードを打ってEnter（return）キーを押す</li><li><strong>Touch ID：</strong>MacBookに搭載されている指紋認証。指を置くだけでログインできる</li></ul><blockquote>パスワードは忘れると大変なので、必ずどこかにメモしておこう。Apple IDのパスワードとMacのログインパスワードは別物なので注意！</blockquote><h4>シャットダウン・再起動・スリープの違い</h4><p>Macを使い終わったとき、3つの選択肢があります。</p><ul><li><strong>スリープ：</strong>画面を閉じるだけ（MacBookの場合）。次に開いたときすぐ使える。バッテリーは少しだけ消費する</li><li><strong>シャットダウン：</strong>完全に電源を切る。長時間使わないときや、動作が重いときに。メニューバー左上の  → 「システム終了」</li><li><strong>再起動：</strong>一度電源を切ってすぐ入れ直す。アップデート後や調子が悪いときに。  → 「再起動」</li></ul><p><strong>日常的にはスリープでOK。</strong>MacBookなら画面を閉じるだけで自動的にスリープします。週に1回くらい再起動すると動作が安定します。</p><h4>困ったときの強制終了</h4><p>Macがフリーズ（固まって動かなくなる）したときは、以下の手順で対処しましょう。</p><ul><li><strong>アプリだけ固まった場合：</strong><code>Command + Option + Esc</code>で「強制終了」ウィンドウを開いて、固まったアプリを選んで「強制終了」</li><li><strong>Mac全体が固まった場合：</strong>電源ボタンを10秒ほど長押しすると強制的に電源が切れる。最終手段なので、普段はなるべく使わないようにしよう</li></ul>',
+      points: [
+        '電源ボタンはMacBookなら右上のTouch IDと兼用、iMacなら背面左下にある',
+        '普段はスリープ（画面を閉じるだけ）でOK。週1回くらい再起動すると安定する',
+        'フリーズしたら Command + Option + Esc で強制終了。全体が固まったら電源ボタン長押し'
+      ],
+      practiceWork: '今すぐMacの左上にある  メニューを開いて、「このMacについて」をクリックしてみよう。自分のMacの機種名・チップ（プロセッサ）・メモリの量を確認して、メモしておこう。トラブルが起きたときや周辺機器を買うときに役立つ情報です！'
+    }
+  },
+  {
+    id: 'chapter_mac_2',
+    title: '画面の見方をマスターしよう',
+    icon: '🖥️',
+    color: 'blue',
+    estimatedMinutes: 20,
+    content: {
+      hook: 'Windowsから乗り換えた人が最初に思うこと：「×ボタンどこ？」「このバー何？」。Macの画面構成を一度ちゃんと理解すると、操作が一気にスムーズになるよ。',
+      goals: [
+        'デスクトップ・メニューバー・Dockの役割を理解して、迷わず操作できるようになる',
+        'ウィンドウの開閉・サイズ変更・移動・フルスクリーンをスムーズにこなせるようになる',
+        'Mission ControlとSpacesを使って、作業スペースを効率的に整理できるようになる'
+      ],
+      body: '<h4>Macの画面は3つのエリアでできている</h4><p>Macの画面は大きく分けて<strong>3つのエリア</strong>で構成されています。</p><ul><li><strong>メニューバー（画面の一番上）：</strong>現在使っているアプリのメニューが表示される場所。右側にはWi-Fi・バッテリー・時計などのアイコンが並ぶ</li><li><strong>デスクトップ（画面の中央）：</strong>壁紙が見えている部分。ファイルやフォルダを置くこともできる</li><li><strong>Dock（画面の一番下）：</strong>よく使うアプリのアイコンが並ぶバー。アプリの起動はここから</li></ul><p>Windowsの「タスクバー」に相当するのがDock、「スタートメニュー」に相当するのが左上の のマークとDock内の「Launchpad」です。</p><h4>ウィンドウの操作を覚えよう</h4><p>Macのウィンドウ操作はWindowsと少し違います。</p><p><strong>左上の3つのボタン（信号機ボタン）：</strong></p><ul><li><strong>赤（×）：</strong>ウィンドウを閉じる。ただしアプリは終了しない！（ここが最大の違い）</li><li><strong>黄（−）：</strong>ウィンドウをDockにしまう（最小化）</li><li><strong>緑（↗）：</strong>フルスクリーン表示にする</li></ul><blockquote>重要：Macでは×ボタンを押してもアプリは裏で動き続けています。アプリを完全に終了するには <code>Command + Q</code> を使おう。</blockquote><p><strong>ウィンドウの移動とサイズ変更：</strong></p><ul><li>移動：ウィンドウの上部（タイトルバー）をドラッグ</li><li>サイズ変更：ウィンドウの端や角をドラッグ</li></ul><h4>Dockを使いこなそう</h4><p>Dockはアプリの「ホームポジション」です。</p><ul><li><strong>アプリを開く：</strong>Dockのアイコンをクリック</li><li><strong>アプリを追加：</strong>LaunchpadやアプリケーションフォルダからアイコンをドラッグしてDockに置く</li><li><strong>アプリを削除：</strong>Dockからアイコンをドラッグして離す（アプリ自体は消えない、Dockの「お気に入り」から外れるだけ）</li><li><strong>起動中の表示：</strong>アイコンの下に小さな点がついていたら、そのアプリは起動中</li></ul><h4>Mission Controlで全体を見渡す</h4><p>たくさんのウィンドウを開いていると「あのウィンドウどこ行った？」となりがち。そんなときは<strong>Mission Control</strong>を使おう。</p><ul><li><strong>起動方法：</strong>トラックパッドで3本指を上にスワイプ、または <code>F3</code> キー（またはControl + ↑）</li><li>開いているすべてのウィンドウが一覧表示される</li><li>クリックでそのウィンドウに移動できる</li></ul><p>Mission Controlの上部では<strong>仮想デスクトップ（Spaces）</strong>を作ることもできます。たとえば「デスクトップ1＝勉強用」「デスクトップ2＝プライベート用」のように分けると作業効率がアップします。</p>',
+      points: [
+        'Macの画面は「メニューバー（上）」「デスクトップ（中央）」「Dock（下）」の3エリア構成',
+        '×ボタンではアプリは終了しない。完全に終了するには Command + Q を使う',
+        'Mission Control（3本指で上スワイプ）でウィンドウ一覧が見える。仮想デスクトップも活用しよう'
+      ],
+      practiceWork: '①Dockから「Safari」と「メモ」アプリを開く ②両方のウィンドウを横に並べてみる ③Mission Control（3本指で上スワイプ or F3）を起動して全体を確認 ④右上の「＋」で新しいデスクトップを追加して、メモアプリをそちらにドラッグで移動してみよう。仮想デスクトップの便利さを体感できるはず！'
+    }
+  },
+  {
+    id: 'chapter_mac_3',
+    title: 'ファイルとフォルダを整理しよう',
+    icon: '📁',
+    color: 'orange',
+    estimatedMinutes: 20,
+    content: {
+      hook: '「あのファイルどこ保存したっけ…」って焦った経験、誰でもあるよね。Finderの使い方と整理のコツさえ覚えれば、もうファイル迷子にはならない。',
+      goals: [
+        'Finderの基本操作（開く・移動・コピー・削除・名前変更）をスムーズにこなせるようになる',
+        'フォルダ構成の考え方を理解して、自分なりの整理ルールを作れるようになる',
+        'ファイルの拡張子やストレージの仕組みを理解して、トラブルを未然に防げるようになる'
+      ],
+      body: '<h4>Finderって何？</h4><p><strong>Finder（ファインダー）</strong>は、Macのファイル管理アプリです。Windowsでいう「エクスプローラー」にあたります。Dockの一番左にある<strong>ニコちゃんマークのアイコン</strong>がFinderです。</p><p>クリックするとFinderウィンドウが開き、Mac内のすべてのファイルとフォルダにアクセスできます。</p><h4>Finderの画面構成</h4><p>Finderの左側には<strong>サイドバー</strong>があり、よく使う場所がまとまっています。</p><ul><li><strong>AirDrop：</strong>近くのAppleデバイスとファイルをワイヤレスで共有</li><li><strong>最近の項目：</strong>最近開いたファイルが自動で表示される</li><li><strong>ダウンロード：</strong>ネットからダウンロードしたファイルがここに入る</li><li><strong>書類：</strong>ドキュメント類の保存場所</li><li><strong>デスクトップ：</strong>デスクトップに置いたファイル</li></ul><h4>基本操作をマスターしよう</h4><p><strong>新しいフォルダの作成：</strong></p><ul><li>Finderのメニューバー → ファイル → 新規フォルダ</li><li>またはショートカット <code>Shift + Command + N</code></li></ul><p><strong>ファイルの移動：</strong></p><ul><li>ドラッグ&ドロップで移動先のフォルダに入れる</li><li>別のドライブに移動する場合は <code>Command</code> を押しながらドラッグ</li></ul><p><strong>コピー：</strong></p><ul><li><code>Option</code> を押しながらドラッグ&ドロップ</li><li>または <code>Command + C</code> → 移動先で <code>Command + V</code></li></ul><p><strong>名前の変更：</strong></p><ul><li>ファイルを選択して <code>Enter</code> キーを押すと名前が編集モードになる（Windowsの F2 に相当）</li></ul><p><strong>削除：</strong></p><ul><li>ファイルを選択して <code>Command + Delete</code> でゴミ箱へ</li><li>ゴミ箱を空にするまでは復元可能</li></ul><h4>おすすめのフォルダ整理ルール</h4><p>ファイルが増えてくると一気にカオスになります。最初から<strong>整理ルール</strong>を決めておくのがコツ。</p><p>おすすめのフォルダ構成例：</p><ul><li><strong>仕事</strong>（または学校） → プロジェクトごとにサブフォルダ</li><li><strong>プライベート</strong> → 趣味・写真・メモなど</li><li><strong>一時ファイル</strong> → 作業中のファイル置き場。定期的に整理する</li></ul><blockquote>ルール：「ダウンロード」フォルダは一時置き場。週に1回は中身を整理して、必要なファイルは適切なフォルダに移動しよう。</blockquote><h4>ファイルの拡張子を知っておこう</h4><p>ファイル名の末尾につく<strong>.pdf</strong>や<strong>.jpg</strong>のような部分を<strong>拡張子</strong>と呼びます。これを見れば「このファイルは何か」がわかります。</p><ul><li><strong>.pdf</strong> → PDF文書</li><li><strong>.jpg / .png</strong> → 画像ファイル</li><li><strong>.docx</strong> → Wordファイル</li><li><strong>.xlsx</strong> → Excelファイル</li><li><strong>.zip</strong> → 圧縮ファイル（ダブルクリックで展開）</li></ul>',
+      points: [
+        'FinderはMacのファイル管理の中心。Dock左端のニコちゃんマークから開ける',
+        'ファイル名変更は Enter、削除は Command + Delete、新規フォルダは Shift + Command + N',
+        'フォルダは最初から「仕事・プライベート・一時」の3分類で整理すると散らからない'
+      ],
+      practiceWork: '①Finderを開いて「書類」フォルダの中に「NEXSKILL練習」というフォルダを作ろう（Shift + Command + N） ②その中に「メモ」「画像」「資料」の3つのサブフォルダを作ろう ③デスクトップに適当なファイルがあれば、それを「NEXSKILL練習」フォルダにドラッグで移動してみよう。この感覚が身につけば、もうファイル迷子は卒業！'
+    }
+  },
+  {
+    id: 'chapter_mac_4',
+    title: 'ブラウザでネットを使いこなそう',
+    icon: '🌐',
+    color: 'green',
+    estimatedMinutes: 20,
+    content: {
+      hook: 'ネットは毎日使うのに、タブの整理やブックマークをちゃんと活用してる人って意外と少ない。ちょっとしたコツで、ブラウジングの効率が2倍になるよ。',
+      goals: [
+        'Safariのタブ操作・ブックマーク・履歴を使いこなして、効率的にブラウジングできるようになる',
+        'ファイルのダウンロードと管理方法を理解して、必要なファイルをすぐ見つけられるようになる',
+        '怪しいサイトやフィッシング詐欺の見分け方を知って、安全にネットを使えるようになる'
+      ],
+      body: '<h4>Safariの基本操作</h4><p><strong>Safari（サファリ）</strong>はMacに最初から入っているウェブブラウザです。Dockにコンパスのようなアイコンがあります。Google Chromeなど他のブラウザを使ってもOKですが、Safariはバッテリー消費が少なく、Macとの相性が抜群です。</p><p>基本操作を押さえましょう：</p><ul><li><strong>URLバー：</strong>画面上部の入力欄。URLを打つか、キーワードで検索できる</li><li><strong>戻る・進む：</strong>左上の矢印ボタン、またはトラックパッドで2本指スワイプ</li><li><strong>ページの更新：</strong><code>Command + R</code></li></ul><h4>タブを使いこなす</h4><p>タブは「1つのウィンドウで複数のページを開く」機能です。</p><ul><li><strong>新しいタブを開く：</strong><code>Command + T</code></li><li><strong>タブを閉じる：</strong><code>Command + W</code></li><li><strong>閉じたタブを復元：</strong><code>Command + Z</code>（直後なら）</li><li><strong>タブの切り替え：</strong><code>Control + Tab</code>で次のタブへ</li></ul><blockquote>タブを開きすぎると動作が重くなる原因に。使い終わったタブはこまめに閉じる習慣をつけよう。</blockquote><h4>ブックマークで「お気に入り」を管理</h4><p>よくアクセスするサイトは<strong>ブックマーク</strong>に登録しておくと便利です。</p><ul><li><strong>登録方法：</strong><code>Command + D</code>でブックマークに追加</li><li><strong>ブックマークバー：</strong>画面上部に常時表示できる。「表示」→「お気に入りバーを表示」でON</li><li><strong>整理：</strong>ブックマークもフォルダで分類できる（仕事用・趣味用など）</li></ul><h4>ファイルのダウンロード</h4><p>ネット上のファイルをダウンロードしたとき、ファイルはMacの<strong>「ダウンロード」フォルダ</strong>に保存されます。</p><ul><li>Safariの右上に下矢印のアイコンが表示されたらダウンロード完了の合図</li><li>Finderの「ダウンロード」フォルダからアクセスできる</li><li><code>.zip</code>ファイルはダブルクリックで展開（解凍）される</li></ul><h4>安全なネットの使い方</h4><p>ネットには危険も潜んでいます。最低限これだけは知っておきましょう。</p><ul><li><strong>URLの確認：</strong>URLが<code>https://</code>で始まっているか確認。<code>http://</code>（sなし）のサイトは暗号化されていない</li><li><strong>フィッシング詐欺：</strong>銀行やサービスを装った偽メール・偽サイトに注意。「急いでログインしてください」は要注意ワード</li><li><strong>怪しいダウンロード：</strong>よくわからないサイトからの<code>.dmg</code>や<code>.pkg</code>ファイルはむやみに開かない</li><li><strong>ポップアップ：</strong>「ウイルスに感染しました！」という表示はほぼ100%詐欺。無視してタブを閉じよう</li></ul>',
+      points: [
+        'タブ操作は Command + T（新規）、Command + W（閉じる）、Control + Tab（切り替え）の3つで十分',
+        'ブックマークは Command + D で登録。フォルダ分けしておくと後で探しやすい',
+        '「ウイルスに感染しました！」はほぼ詐欺。httpsの確認と、不審なダウンロードを避けるのが基本'
+      ],
+      practiceWork: '①Safariを開いて、好きなサイトを3つタブで開いてみよう（Command + T で新しいタブ） ②その中の1つを Command + D でブックマークに追加 ③「表示」→「お気に入りバーを表示」をONにして、ブックマークバーに表示されることを確認 ④最後に全タブを Command + W で順番に閉じてみよう。この操作が自然にできれば、ブラウジング効率は一気に上がる！'
+    }
+  },
+  {
+    id: 'chapter_mac_5',
+    title: 'メールを送ってみよう',
+    icon: '✉️',
+    color: 'purple',
+    estimatedMinutes: 20,
+    content: {
+      hook: 'LINEは使えるけどメールは苦手…って人、意外と多いよね。でも仕事や就活ではメールは必須スキル。一度覚えれば一生使えるから、ここでサクッとマスターしよう。',
+      goals: [
+        'Macのメールアプリにアカウントを設定して、メールの送受信ができるようになる',
+        'CC・BCC・添付ファイルの使い方を理解して、ビジネスメールの基本操作ができるようになる',
+        'メールのマナー（件名の書き方・敬語・署名）を押さえて、失礼のないメールが書けるようになる'
+      ],
+      body: '<h4>メールアプリの設定</h4><p>Macには最初から<strong>「メール」アプリ</strong>が入っています。Dockの切手のようなアイコンがそれです。</p><p>初回起動時にメールアカウントの設定を求められます。</p><ul><li><strong>Gmail：</strong>「Google」を選んでGoogleアカウントでログイン</li><li><strong>iCloud：</strong>Apple IDで自動設定される</li><li><strong>その他：</strong>大学のメールアドレスなどは「その他のメールアカウント」から手動設定</li></ul><p>設定が完了すると、受信トレイにメールが表示されます。GmailをSafariで使っている人も、メールアプリを使えば通知が来るので見逃しが減ります。</p><h4>メールの送り方</h4><p>基本的な手順はこちら：</p><ul><li>メールアプリ左上の<strong>「新規メッセージ」ボタン</strong>（✏️アイコン）をクリック、または <code>Command + N</code></li><li><strong>宛先（To）：</strong>相手のメールアドレスを入力</li><li><strong>件名：</strong>メールの内容がわかるタイトルを書く</li><li><strong>本文：</strong>メッセージを書く</li><li><strong>送信：</strong>左上の送信ボタン（紙飛行機アイコン）か <code>Command + Shift + D</code></li></ul><h4>CC・BCCって何？</h4><p>メールを複数人に送るとき、<strong>CC</strong>と<strong>BCC</strong>を使い分けます。</p><ul><li><strong>CC（Carbon Copy）：</strong>「参考として送ります」の意味。CCに入った人のアドレスは全員に見える</li><li><strong>BCC（Blind Carbon Copy）：</strong>他の受信者に見えない形で送る。大人数に一斉送信するときに使う</li></ul><blockquote>大事：複数人に一斉送信するとき、他の人にメアドを知られたくない場合は必ずBCCを使おう。CCで全員のアドレスが丸見え…は社会人の「やっちゃいけない」の代表例です。</blockquote><h4>添付ファイルの送り方</h4><p>メールにファイルを添付する方法：</p><ul><li>メール作成画面のクリップアイコンをクリック、またはファイルを直接ドラッグ&ドロップ</li><li><strong>容量の目安：</strong>一般的に添付ファイルは合計10MB以内が目安。それ以上はファイル共有サービス（Googleドライブなど）を使おう</li></ul><h4>メールマナーの基本</h4><p>ビジネスや就活のメールで押さえておくべきポイント：</p><ul><li><strong>件名：</strong>内容がわかるものに。「お疲れ様です」だけはNG。「【ご相談】来週の打ち合わせ日程について」のように</li><li><strong>書き出し：</strong>「〇〇様」から始める。社内なら「お疲れ様です」、社外なら「お世話になっております」</li><li><strong>本文：</strong>結論を先に書く。長文は避け、箇条書きを活用する</li><li><strong>署名：</strong>メール末尾に名前・所属・連絡先を設定しておく（メールアプリの「設定」→「署名」から）</li></ul>',
+      points: [
+        'メールアプリの初期設定はGoogleやApple IDでログインするだけ。大学メールは「その他」から設定',
+        'CC は参考送信（アドレス公開）、BCC は非公開送信。大人数送信は必ずBCC',
+        '件名は具体的に、本文は結論ファースト、署名を設定。この3つだけでメールのレベルが上がる'
+      ],
+      practiceWork: '①メールアプリを開いて、自分のメールアカウントを設定しよう ②自分自身のアドレス宛にテストメールを送ってみよう。件名は「テストメール」、本文は自由 ③メールアプリの「設定」→「署名」から、自分の署名を設定しよう（名前・所属だけでOK）。送ったメールを確認して、署名がちゃんと入っているかチェック！'
+    }
+  },
+  {
+    id: 'chapter_mac_6',
+    title: 'よく使うショートカットを覚えよう',
+    icon: '⌨️',
+    color: 'pink',
+    estimatedMinutes: 15,
+    content: {
+      hook: '正直、ショートカットキーを覚えるだけで「パソコンできる人」に見えます。最初は5個だけでいい。それだけで作業スピードが倍になるから。',
+      goals: [
+        'Mac日常操作に欠かせない基本ショートカット10個を使えるようになる',
+        'CommandキーとOptionキーの役割の違いを理解して、応用できるようになる',
+        'スクリーンショットの撮り方を覚えて、画面共有や記録がスムーズにできるようになる'
+      ],
+      body: '<h4>まずはこの5つだけ覚えよう</h4><p>Macのショートカットは<strong>Command（⌘）キー</strong>を中心に構成されています。Windowsの Ctrl キーに近い存在です。</p><p>最低限この5つを覚えれば、作業効率が一気に上がります：</p><ul><li><strong><code>Command + C</code>：コピー</strong> — 選択したテキストやファイルをコピー</li><li><strong><code>Command + V</code>：ペースト（貼り付け）</strong> — コピーした内容を貼り付け</li><li><strong><code>Command + Z</code>：取り消し（元に戻す）</strong> — 直前の操作を取り消す。ミスったらこれ</li><li><strong><code>Command + A</code>：全選択</strong> — テキストやファイルをすべて選択</li><li><strong><code>Command + S</code>：保存</strong> — 作業中のファイルを保存。こまめに押す癖をつけよう</li></ul><blockquote>「Command + Z」は最強のショートカット。何かミスっても焦らず Command + Z。これだけで救われる場面が無限にあります。</blockquote><h4>次のステップ：便利なショートカット5選</h4><p>基本5つに慣れたら、次はこちらを追加しましょう：</p><ul><li><strong><code>Command + F</code>：検索</strong> — ページ内やドキュメント内のテキストを検索</li><li><strong><code>Command + Tab</code>：アプリ切り替え</strong> — 開いているアプリを切り替える</li><li><strong><code>Command + Q</code>：アプリ終了</strong> — ×ボタンではアプリは終了しないので、これで完全に閉じる</li><li><strong><code>Command + Space</code>：Spotlight検索</strong> — アプリ・ファイル・計算なんでも検索できる万能ツール</li><li><strong><code>Command + W</code>：ウィンドウ/タブを閉じる</strong> — Command + Q との使い分けが重要</li></ul><h4>スクリーンショットを撮ろう</h4><p>画面のキャプチャは仕事でもプライベートでもよく使います。</p><ul><li><strong><code>Shift + Command + 3</code>：画面全体のスクリーンショット</strong></li><li><strong><code>Shift + Command + 4</code>：選択範囲のスクリーンショット</strong> — ドラッグで範囲を選択</li><li><strong><code>Shift + Command + 4 → Space</code>：ウィンドウのスクリーンショット</strong> — カメラアイコンが出たら撮りたいウィンドウをクリック</li></ul><p>撮ったスクリーンショットはデスクトップに自動保存されます。</p><h4>Spotlight検索は最強ツール</h4><p><code>Command + Space</code> で開く<strong>Spotlight検索</strong>は、Macの中で最も便利な機能の一つです。</p><ul><li>アプリ名を打って起動（わざわざDockを探さなくていい）</li><li>ファイル名で検索（Finderで探すより早い）</li><li>計算（「1200*1.1」と打てば電卓代わり）</li><li>単語の辞書検索（英単語を打てば意味が出る）</li></ul><p>何か探すときは、まず <code>Command + Space</code> を押す。この癖をつけるだけで、Mac操作のスピードが劇的に変わります。</p>',
+      points: [
+        'まずは Command + C/V/Z/A/S の5つから。特に Command + Z（取り消し）は最強、何かミスったらすぐこれ',
+        'スクリーンショットは Shift + Command + 3（全体）、4（選択範囲）。仕事で毎日使うレベル',
+        'Command + Space のSpotlight検索は万能。アプリ起動・ファイル検索・計算まで何でもできる'
+      ],
+      practiceWork: '今すぐこの3ステップを試してみよう。①このページのテキストを Command + A で全選択 → Command + C でコピー → メモアプリを開いて Command + V で貼り付け ② Command + Z で貼り付けを取り消し ③ Shift + Command + 4 で画面の好きな部分のスクリーンショットを撮って、デスクトップに保存されたことを確認。この3つが自然にできれば、ショートカットの基本は完璧！'
+    }
   }
 ];
 
@@ -1324,6 +1457,14 @@ var COURSES = [
     color: 'purple',
     description: 'AIの基本をゼロから学ぶ入門コース。ChatGPTの使い方からプロンプト術、画像生成、副業活用まで。',
     chapterIds: ['chapter_1', 'chapter_2', 'chapter_3', 'chapter_4', 'chapter_5', 'chapter_6']
+  },
+  {
+    id: 'course_mac_basics',
+    title: 'はじめてのMacコース',
+    icon: '🍎',
+    color: 'blue',
+    description: 'Macを使い始めたばかりの人が、日常的なPC作業に困らなくなるための入門コース。ネット・メール・ファイル整理までひと通りマスターしよう。',
+    chapterIds: ['chapter_mac_1', 'chapter_mac_2', 'chapter_mac_3', 'chapter_mac_4', 'chapter_mac_5', 'chapter_mac_6']
   }
 ];
 
