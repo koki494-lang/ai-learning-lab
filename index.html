@@ -1039,7 +1039,7 @@ a { color: var(--primary); text-decoration: none; }
 
   <div id="recommend-area"></div>
 
-  <h2 class="section-title">📚 コース一覧</h2>
+  <h2 class="section-title">📚 コース</h2>
   <div id="course-list" class="course-list"></div>
 
 
@@ -1848,12 +1848,19 @@ var DEFAULT_CHAPTERS = [
 var SYSTEM_PROMPT = 'あなたは20代向けのスキルアップ教材を作るライターです。\nAI活用・ビジネススキル・マインドセットなど幅広いテーマを扱います。\n以下のルールで記事を書いてください。\n\n【トーン】\n- 「ちょっと先を行くデキる先輩」が教えてくれる感じ\n- カジュアルだけど知識は本物・実践的\n- 難しい内容には必ず例え話・具体例を入れる\n- 章の冒頭は共感できる一言から始める\n\n【構成】（必ずこの順番で）\n1. つかみの一言（共感・問いかけ）\n2. この章で何ができるようになるか（箇条書き3つ）\n3. 本文解説（見出しを使って読みやすく。4つ以上のセクションに分けて詳しく書くこと）\n4. ポイントまとめ（3つ）\n5. 実践ワーク（今すぐ試せる課題を1つ）\n\n【NGルール】\n- 特定ツールやサービスを「これだけ使え」と断言しない\n- 「簡単に月100万稼げる」など誇大表現を使わない\n- 著作権・倫理的にグレーな使い方を推奨しない\n- 専門用語は初出時に必ず一言で説明する\n- 料金・プランは具体的な数字を避け「無料プランあり」「有料プランで拡張可能」などの表現にする\n\n【出力形式】\n必ず以下のJSON形式のみを出力してください。JSON以外のテキスト（説明文やマークダウン記法など）は一切含めないでください。\n{\n  "hook": "つかみの一言",\n  "goals": ["できること1", "できること2", "できること3"],\n  "body": "本文解説のHTML（h4, p, ul, li, strong, blockquote, codeタグを使用可能）",\n  "points": ["ポイント1の説明文", "ポイント2の説明文", "ポイント3の説明文"],\n  "practiceWork": "実践ワークの内容（具体的な手順を含めること）"\n}';
 
 // ===== コース定義 =====
+// カテゴリ定義（表示順）
+var COURSE_CATEGORIES = [
+  { id: 'pc', label: '💻 PC基礎' },
+  { id: 'ai', label: '🤖 AI活用' }
+];
+
 var COURSES = [
   {
     id: 'course_ai_basics',
     title: 'AI初歩コース',
     icon: '🚀',
     color: 'purple',
+    category: 'ai',
     description: 'AIの基本をゼロから学ぶ入門コース。ChatGPTの使い方からプロンプト術、画像生成、副業活用まで。',
     chapterIds: ['chapter_1', 'chapter_2', 'chapter_3', 'chapter_4', 'chapter_5', 'chapter_6']
   },
@@ -1862,6 +1869,7 @@ var COURSES = [
     title: 'はじめてのMacコース',
     icon: '🍎',
     color: 'blue',
+    category: 'pc',
     description: 'Macを使い始めたばかりの人が、日常的なPC作業に困らなくなるための入門コース。ネット・メール・ファイル整理までひと通りマスターしよう。',
     chapterIds: ['chapter_mac_1', 'chapter_mac_2', 'chapter_mac_3', 'chapter_mac_4', 'chapter_mac_5', 'chapter_mac_6']
   },
@@ -1870,6 +1878,7 @@ var COURSES = [
     title: 'はじめてのWindowsコース',
     icon: '🪟',
     color: 'blue',
+    category: 'pc',
     description: 'Windowsを使い始めたばかりの人が、日常的なPC作業に困らなくなるための入門コース。ネット・メール・ファイル整理までひと通りマスターしよう。',
     chapterIds: ['chapter_win_1', 'chapter_win_2', 'chapter_win_3', 'chapter_win_4', 'chapter_win_5', 'chapter_win_6']
   },
@@ -1878,6 +1887,7 @@ var COURSES = [
     title: 'もっと使えるMacコース',
     icon: '🍎',
     color: 'teal',
+    category: 'pc',
     description: 'Mac入門を終えた人が、クラウド活用・セキュリティ・ファイル整理術を身につけてPCをもっと賢く使いこなすための応用コース。',
     chapterIds: ['chapter_mac2_1', 'chapter_mac2_2', 'chapter_mac2_3', 'chapter_mac2_4', 'chapter_mac2_5', 'chapter_mac2_6']
   },
@@ -1886,6 +1896,7 @@ var COURSES = [
     title: 'もっと使えるWindowsコース',
     icon: '🪟',
     color: 'teal',
+    category: 'pc',
     description: 'Windows入門を終えた人が、クラウド活用・セキュリティ・ファイル整理術を身につけてPCをもっと賢く使いこなすための応用コース。',
     chapterIds: ['chapter_win2_1', 'chapter_win2_2', 'chapter_win2_3', 'chapter_win2_4', 'chapter_win2_5', 'chapter_win2_6']
   }
@@ -2190,23 +2201,34 @@ function renderRecommend() {
 }
 
 // ===== コース一覧 =====
+function buildCourseCard(course) {
+  var courseChapters = getCourseChapters(course.id);
+  var total = courseChapters.length;
+  var completed = courseChapters.filter(function(c) { return c.status === 'completed'; }).length;
+  var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  return '<div class="course-card ' + course.color + '" onclick="openCourse(\'' + course.id + '\')">' +
+    '<div class="course-icon">' + course.icon + '</div>' +
+    '<div class="course-title">' + escapeHtml(course.title) + '</div>' +
+    '<div class="course-desc">' + escapeHtml(course.description) + '</div>' +
+    '<div class="course-progress-wrap">' +
+      '<div class="course-progress-bar"><div class="course-progress-fill" style="width:' + pct + '%"></div></div>' +
+      '<div class="course-progress-text">' + completed + ' / ' + total + ' チャプター完了</div>' +
+    '</div>' +
+  '</div>';
+}
+
 function renderCourseList() {
   var list = document.getElementById('course-list');
-  list.innerHTML = COURSES.map(function(course) {
-    var courseChapters = getCourseChapters(course.id);
-    var total = courseChapters.length;
-    var completed = courseChapters.filter(function(c) { return c.status === 'completed'; }).length;
-    var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-    return '<div class="course-card ' + course.color + '" onclick="openCourse(\'' + course.id + '\')">' +
-      '<div class="course-icon">' + course.icon + '</div>' +
-      '<div class="course-title">' + escapeHtml(course.title) + '</div>' +
-      '<div class="course-desc">' + escapeHtml(course.description) + '</div>' +
-      '<div class="course-progress-wrap">' +
-        '<div class="course-progress-bar"><div class="course-progress-fill" style="width:' + pct + '%"></div></div>' +
-        '<div class="course-progress-text">' + completed + ' / ' + total + ' チャプター完了</div>' +
-      '</div>' +
-    '</div>';
-  }).join('');
+  var html = '';
+  COURSE_CATEGORIES.forEach(function(cat) {
+    var catCourses = COURSES.filter(function(c) { return c.category === cat.id; });
+    if (catCourses.length === 0) return;
+    html += '<h3 class="section-title" style="margin-top:20px;margin-bottom:12px;font-size:1rem;">' + cat.label + '</h3>';
+    html += '<div class="course-list" style="margin-bottom:8px;">';
+    html += catCourses.map(function(course) { return buildCourseCard(course); }).join('');
+    html += '</div>';
+  });
+  list.innerHTML = html;
 }
 
 function renderCustomChaptersOnHome() {
