@@ -22,6 +22,8 @@ ai_learning_app/
 │   ├── decisions.md
 │   └── todo.md
 ├── CLAUDE.md           # Claude Code用の作業ルール
+├── DIRECTION.md        # 方針定義v2（位置づけ・ミッション・やらないことリスト）
+├── README.md           # プロジェクト概要（GitHub表示用）
 └── .claude/
     └── launch.json     # ローカルプレビューサーバー設定（port 8765）
 ```
@@ -133,7 +135,6 @@ Auth Domain: ai-learning-lab-21b07.firebaseapp.com
 | Firebase Auth | ユーザー認証 | メール/パスワード方式 |
 | Cloud Firestore | データ永続化 | ユーザー進捗・許可メアド |
 | GitHub Pages | 静的ホスティング | mainブランチから自動デプロイ |
-| Anthropic API | チャプター生成（管理者のみ） | SYSTEM_PROMPT内蔵、現在ユーザーには非公開 |
 
 ## セキュリティ上の注意点
 - **Firestoreルールがテストモード**: 2026年7月まで全読み書き許可。本番運用前に適切なルールに変更が必要

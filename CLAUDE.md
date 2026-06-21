@@ -6,7 +6,7 @@
 
 ## プロジェクト概要
 - **アプリ名**: NEXSKILL（次の自分をつくるスキル学習）
-- **ターゲット**: 20代全般（大学生〜社会人3年目）
+- **ターゲット**: 大学1〜2年生（副業に踏み出したい層）
 - **構成**: index.html（メインアプリ）+ admin.html（管理者ページ）のシングルHTML構成
 - **ホスティング**: GitHub Pages（mainブランチpushで自動デプロイ）
 - **バックエンド**: Firebase Auth + Cloud Firestore（サーバーサイドコードなし）
@@ -43,9 +43,10 @@
 - Co-Authored-By を含める
 
 ## 変更前に確認すべきこと
-1. `docs/architecture.md` でデータ構造を確認
-2. `docs/requirements.md` で「やらないこと」に該当しないか確認
-3. `docs/decisions.md` で過去に却下された案でないか確認
+1. `DIRECTION.md` で方針（サブ事業・やらないことリスト）を確認
+2. `docs/architecture.md` でデータ構造を確認
+3. `docs/requirements.md` で「やらないこと」に該当しないか確認
+4. `docs/decisions.md` で過去に却下された案でないか確認
 
 ## ドキュメント更新ルール
 以下の変更を行ったら、対応するドキュメントも更新すること：
