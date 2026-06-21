@@ -2060,15 +2060,6 @@ function renderCourseList() {
   list.innerHTML = html;
 }
 
-function renderCustomChaptersOnHome() {
-  var customs = chapters.filter(function(c) { return c.id.startsWith('chapter_custom_'); });
-  var area = document.getElementById('custom-chapters-area');
-  var list = document.getElementById('custom-chapter-list');
-  if (customs.length === 0) { area.style.display = 'none'; return; }
-  area.style.display = 'block';
-  list.innerHTML = customs.map(function(ch) { return buildChapterCard(ch); }).join('');
-}
-
 function getCourseChapters(courseId) {
   var course = COURSES.find(function(c) { return c.id === courseId; });
   if (!course) return [];
